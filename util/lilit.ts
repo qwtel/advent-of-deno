@@ -364,7 +364,7 @@ export function replaceWhen<X, Y>(pf: (x: X) => boolean, ys: Iterable<Y>) {
   };
 }
 
-export function grouped<X>(n: number, step: number = n) {
+export function grouped<X>(n: number, step: number = n, incomplete: boolean = false) {
   return function*(xs: Iterable<X>): IterableIterator<X[]> {
     let group = [];
     for (const x of xs) {
@@ -374,6 +374,7 @@ export function grouped<X>(n: number, step: number = n) {
         for (let i = 0; i < step; i++) group.shift();
       }
     }
+    if (incomplete && group.length) yield group;
   };
 }
 
