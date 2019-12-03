@@ -1,5 +1,6 @@
 {
   "imports": {
-     "lilit": "https://unpkg.com/lilit@0.6.9/ts/index.ts"
+    "immutable": "https://unpkg.com/immutable@4.0.0-rc.12/dist/immutable.es.js",
+    "lilit": "https://unpkg.com/lilit@0.6.9/ts/index.ts"
   }
 }
