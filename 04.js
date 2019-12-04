@@ -7,7 +7,7 @@ import { pipe, distinctUntilChanged, length, groupedUntilChanged, some } from '.
 
 const [, from, to] = (await read(Deno.stdin))
   .trim()
-  .match(/(\d+)-(\d+)/)
+  .match(/(\d{6})-(\d{6})/)
   .map(Number);
 
 function solve(predicate) {
