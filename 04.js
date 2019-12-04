@@ -19,7 +19,7 @@ function solve(predicate) {
           for (let d5 = d4; d5 <= 9; d5++) {
             for (let d6 = d5; d6 <= 9; d6++) {
               const digits = [d1, d2, d3, d4, d5, d6]
-              let n = Number(digits.join(''))
+              const n = Number(digits.join(''))
               if (n >= from && n <= to && predicate(digits, n)) count++
             }
           }
@@ -34,8 +34,4 @@ function solve(predicate) {
 console.log(solve((digits) => pipe(digits, distinctUntilChanged(), length()) <= 5))
 
 // 2
-console.log(solve((digits) => pipe(
-  digits,
-  groupedUntilChanged(),
-  some((box) => box.length === 2)
-)))
+console.log(solve((digits) => pipe(digits, groupedUntilChanged(), some((box) => box.length === 2))))
