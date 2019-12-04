@@ -12,11 +12,11 @@ const fuel = pipe(
   input,
   map(x => Math.floor(x / 3) - 2),
   sum(),
-)
+);
 
-console.log(fuel)
+console.log(fuel);
 
-const calcFuel = x => Math.max(Math.floor(x / 3) - 2, 0)
+const calcFuel = x => Math.max(Math.floor(x / 3) - 2, 0);
 
 // "Imperative" solution
 // const calcFuel2 = (x) => pipe(x,
@@ -35,12 +35,12 @@ const calcFuel2_ = (x) => pipe(
   scan(calcFuel, x),
   takeWhile(x => x > 0),
   sum(),
-)
+);
 
 const fuel2 = pipe(
   input,
   map(calcFuel2_),
   sum(),
-)
+);
 
-console.log(fuel2)
+console.log(fuel2);
