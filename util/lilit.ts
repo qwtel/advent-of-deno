@@ -77,6 +77,15 @@ export function filter<X>(p: (x: X) => boolean) {
   };
 }
 
+export function filterMap<X, Y>(f: (x: X) => Y) {
+  return function*(xs: Iterable<X>): IterableIterator<Y> {
+    for (const x of xs) {
+      const y = f(x);
+      if (y != null) yield y;
+    }
+  };
+}
+
 export function partition<X>(p: (x: X) => boolean) {
   return function(xs: Iterable<X>): [IterableIterator<X>, IterableIterator<X>] {
     const [xs1, xs2] = tee(xs);
