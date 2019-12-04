@@ -19,7 +19,7 @@ export function tap<X>(f: (x: X) => any) {
   };
 }
 
-export const inspect = tap;
+export { tap as inspect }
 
 export function forEach<X>(f: (x: X) => any) {
   return function(xs: Iterable<X>): void {
@@ -27,7 +27,7 @@ export function forEach<X>(f: (x: X) => any) {
   };
 }
 
-export const subscribe = forEach;
+export { forEach as subscribe }
 
 export function reduce<X, R>(f: (acc: R, x: X) => R, init: R) {
   return function(xs: Iterable<X>): R {
@@ -49,7 +49,7 @@ export function scan<X, R>(f: (acc: R, x: X) => R, init: R) {
   };
 }
 
-export const reducutions = scan;
+export { scan as reducutions }
 
 export function some<X>(p: (x: X) => boolean) {
   return function(xs: Iterable<X>): boolean {
@@ -112,7 +112,7 @@ export function partitionAt<X>(n: number) {
   };
 }
 
-export const splitAt = partitionAt;
+export { partitionAt as splitAt }
 
 export function skipWhile<X>(f: (x: X) => boolean) {
   return function*(xs: Iterable<X>): IterableIterator<X> {
@@ -461,6 +461,8 @@ export function unique<X>(comp: (a: X, b: X) => boolean = (a, b) => a === b) {
   };
 }
 
+export { unique as distinct }
+
 export function uniqueSorted<X>(comp: (a: X, b: X) => boolean = (a, b) => a === b) {
   return function*(xs: Iterable<X>): IterableIterator<X> {
     const arr = [];
@@ -486,7 +488,7 @@ export function* concat<X>(...xss: Iterable<X>[]): IterableIterator<X> {
   for (const xs of xss) for (const x of xs) yield x;
 }
 
-export const chain = concat;
+export { concat as chain }
 
 export function* zip2<X, Y>(xs: Iterable<X>, ys: Iterable<Y>): IterableIterator<[X, Y]> {
   const xit = iterator(xs);
@@ -655,7 +657,7 @@ export function* permutations(xs: Iterable<{}>, r: number = 2): IterableIterator
   throw Error('Not implemented');
 }
 
-export function* constantly<X>(value: X): IterableIterator<X> {
+export function* constantly<X>(value?: X): IterableIterator<X> {
   while (true) yield value;
 }
 

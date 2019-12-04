@@ -3,10 +3,9 @@
 import { fromJS, Map } from 'immutable'
 
 import { read } from './util/aoc.ts';
-import { pipe, map, grouped, forEach, product2, range, find, zip2, min } from './util/lilit.ts'
-import { pad } from './util/other.ts';
+import { pipe, range, zip2, min } from './util/lilit.ts'
 
-const env = Deno.env()
+// const env = Deno.env()
 
 const input = (await read(Deno.stdin))
   .trim()
