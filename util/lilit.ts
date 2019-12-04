@@ -426,6 +426,32 @@ export function distinctUntilChanged<X>(comp: (a: X, b: X) => boolean = (a, b) =
   };
 }
 
+export function groupedUntilChanged<X>(equals: (a: X, b: X) => boolean = (a, b) => a === b) {
+  return function*(xs: Iterable<X>): IterableIterator<X[]> {
+    const it = iterator(xs);
+    const { done, value: initial } = it.next();
+    if (done) return;
+
+    let group: X[] = [];
+
+    group.push(initial);
+    let prev = initial;
+
+    for (const x of it) {
+      if (equals(x, prev)) {
+        group.push(x);
+        prev = x;
+      } else {
+        yield [...group];
+        group = [x];
+        prev = x;
+      }
+    }
+
+    if (group.length) yield group
+  };
+}
+
 export function unique<X>(comp: (a: X, b: X) => boolean = (a, b) => a === b) {
   return function*(xs: Iterable<X>): IterableIterator<X> {
     const arr = [];
