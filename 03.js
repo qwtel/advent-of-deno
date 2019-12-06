@@ -1,4 +1,4 @@
-#!/usr/bin/env deno --allow-env --importmap=import_map.json
+#!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
 import { fromJS, Map } from 'immutable'
 
