@@ -8,8 +8,8 @@ type Graph = {
   deps: Map<string, string[]>;
 }
 
-export function makeGraph(edges: [string, string][], { sorted = false }: { sorted?: boolean } = {}) {
-  const vertices = new Set([...pipe(edges, flatten())]);
+export function makeGraph(edges: [string, string][], { sorted = false }: { sorted?: boolean } = {}): Graph {
+  const vertices = new Set([...pipe(edges, flatten<string>())]);
     
   const dirs = new Map();
   const deps = new Map();

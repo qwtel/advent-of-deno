@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
 import { read } from './util/aoc.ts';
-import { pipe, map, grouped, forEach, product2, range, find } from './util/lilit.ts'
+import { pipe, map, grouped, forEach } from './util/lilit.ts'
 import { pad, mod } from './util/other.ts';
 
 const env = Deno.env()
@@ -110,7 +110,7 @@ function solve(ip) {
         mem[mem[pc++]] = a === b ? 1 : 0;
         break;
       }
-      default: throw Error(opcode);
+      default: throw Error(String(opcode));
     }
   }
   return mem[0];
