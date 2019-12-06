@@ -60,7 +60,7 @@ export function bfs(g: Graph, source: string, target: string) {
   return unwind(prev, target);
 }
 
-export function dijkstra(g: Graph, source: string, target: string) {
+export function dijkstra(g: Graph, source: string, target: string, distance: (g: Graph, e: [string, string]) => number) {
   const { vertices } = g;
 
   const q = [];
@@ -82,7 +82,7 @@ export function dijkstra(g: Graph, source: string, target: string) {
     if (u === target) break;
 
     for (const v of pipe(neighbors(g, u), filter(v => q.includes(v)))) {
-      const alt = dist.get(u) + 1; // length is always 1
+      const alt = dist.get(u) + distance(g, [u, v]);
       if (alt < dist.get(v)) {
         dist.set(v, alt);
         prev.set(v, u);

@@ -7,10 +7,10 @@ import { makeGraph, bfs } from './util/graph.ts'
 const input = await read(Deno.stdin);
 
 const edges = input
-    .trim()
-    .split('\n')
-    .map(line => line.match(/([A-Z0-9]+)\)([A-Z0-9]+)/))
-    .map(([, a, b]) => [a, b])
+  .trim()
+  .split('\n')
+  .map(line => line.match(/([A-Z0-9]+)\)([A-Z0-9]+)/))
+  .map(([, a, b]) => [a, b])
 
 const { vertices, deps, dirs } = makeGraph(edges);
 
