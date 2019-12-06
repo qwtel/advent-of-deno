@@ -425,9 +425,9 @@ export function flatten<X>() {
   };
 }
 
-export function flatMap<A, B>(f: (x: A) => B) {
-  return function*(xss: Iterable<Iterable<A>>): IterableIterator<B> {
-    for (const xs of xss) for (const x of xs) yield f(x);
+export function flatMap<A, B>(f: (x: A) => Iterable<B>) {
+  return function*(xs: Iterable<A>): IterableIterator<B> {
+    for (const x of xs) for (const y of f(x)) yield y;
   };
 }
 
