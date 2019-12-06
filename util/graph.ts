@@ -1,15 +1,15 @@
-import { pipe, map, min, filter, pairwise, flatten, unique } from "./lilit.ts";
+import { pipe, map, min, filter, pairwise, flatten } from "./lilit.ts";
 import { findAndRemove } from "./other.ts";
 
 type Graph = {
-  edges: [string, string][];
-  vertices: string[];
+  edges: Array<[string, string]>;
+  vertices: Set<string>;
   dirs: Map<string, string[]>;
   deps: Map<string, string[]>;
 }
 
 export function makeGraph(edges: [string, string][], { sorted = false }: { sorted?: boolean } = {}) {
-  const vertices = [...pipe(edges, flatten(), unique())];
+  const vertices = new Set([...pipe(edges, flatten())]);
     
   const dirs = new Map();
   const deps = new Map();

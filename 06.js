@@ -1,7 +1,7 @@
 #!/usr/bin/env deno --allow-env --importmap=import_map.json
 
 import { read } from './util/aoc.ts';
-import { pipe, flatten, unique, map, sum } from './util/lilit.ts';
+import { pipe, map, sum } from './util/lilit.ts';
 import { makeGraph, bfs } from './util/graph.ts'
 
 const input = await read(Deno.stdin);
