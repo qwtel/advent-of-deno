@@ -419,6 +419,12 @@ export function sortScan<X>(cf: (a: X, b: X) => number) {
   };
 }
 
+export function flatten<X>() {
+  return function*(xss: Iterable<Iterable<X>>): IterableIterator<X> {
+    for (const xs of xss) for (const x of xs) yield x;
+  };
+}
+
 export function flatMap<A, B>(f: (x: A) => B) {
   return function*(xss: Iterable<Iterable<A>>): IterableIterator<B> {
     for (const xs of xss) for (const x of xs) yield f(x);
