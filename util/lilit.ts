@@ -261,6 +261,8 @@ export function length() {
   };
 }
 
+export { length as count, length as size }
+
 export function min() {
   return function(xs: Iterable<number>): number {
     let res = Number.POSITIVE_INFINITY;
@@ -593,7 +595,7 @@ export function* product(...xss: Iterable<{}>[]): IterableIterator<{}[]> {
 }
 
 export function* productN(xs: Iterable<{}>, r: number = 1): IterableIterator<{}[]> {
-  const pools = constantly([...xs], r);
+  const pools = repeat([...xs], r);
   let result = [[]];
   for (const pool of pools) {
       const presult = result;
@@ -693,20 +695,13 @@ export function* permutations<T>(xs: Iterable<T>, r: number = 2): IterableIterat
   }
 }
 
-export function* constantly<X>(value?: X, r: number = null): IterableIterator<X> {
-  if (r != null) for (let i = 0; i < r; i++) yield value;
-  else while (true) yield value;
+export function* repeat<X>(value?: X, r: number = Number.POSITIVE_INFINITY): IterableIterator<X> {
+  for (let i = 0; i < r; i++) yield value;
 }
 
-export function* cycle<X>(xs: Iterable<X>): IterableIterator<X> {
-  let xs2: Iterable<X>;
-  while (true) {
-    [xs, xs2] = tee(xs);
-    for (const x of xs2) yield x;
-  }
-}
+export { repeat as constantly }
 
-export function* repeat<X>(xs: Iterable<X>, n: number): IterableIterator<X> {
+export function* cycle<X>(xs: Iterable<X>, n: number = Number.POSITIVE_INFINITY): IterableIterator<X> {
   let xs2: Iterable<X>;
   for (let i = 0; i < n; i++) {
     [xs, xs2] = tee(xs);
