@@ -8,15 +8,14 @@ const input = (await read(Deno.stdin))
   .split('\n')
   .map(Number);
 
-const fuel = pipe(
+const calcFuel = x => Math.floor(x / 3) - 2;
+
+pipe(
   input,
-  map(x => Math.floor(x / 3) - 2),
+  map(calcFuel),
   sum(),
+  f => console.log(f),
 );
-
-console.log(fuel);
-
-const calcFuel = x => Math.max(Math.floor(x / 3) - 2, 0);
 
 // "Imperative" solution
 // const calcFuel2 = (x) => pipe(x,
@@ -30,17 +29,16 @@ const calcFuel = x => Math.max(Math.floor(x / 3) - 2, 0);
 //   sum()
 // )
 
-const calcFuel2_ = (x) => pipe(
+const calcFuel2 = (x) => pipe(
   constantly(),
   scan(calcFuel, x),
   takeWhile(x => x > 0),
   sum(),
 );
 
-const fuel2 = pipe(
+pipe(
   input,
-  map(calcFuel2_),
+  map(calcFuel2),
   sum(),
+  f => console.log(f)
 );
-
-console.log(fuel2);
