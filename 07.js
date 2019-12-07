@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
 import { read } from './util/aoc.ts';
-import { pipe, map, grouped, forEach, product, productN, range, permutations, skip, startWith, take, max } from './util/lilit.ts'
+import { pipe, map, grouped, forEach, range, permutations, max } from './util/lilit.ts'
 import { pad, mod } from './util/other.ts';
 
 const env = Deno.env()
@@ -132,25 +132,41 @@ pipe(
 );
 
 // 2
-// function dothething2([pa, pb, pc, pd, pe]) {
-//   const pc1 = solve(input, pa);
-//   const pc2 = solve(input, pb);
-//   const pc3 = solve(input, pc);
-//   const pc4 = solve(input, pd);
-//   const pc5 = solve(input, pe);
-//   let done, value
-//   while (true) {
-//     ({ done, value } = pc1.next(0));
-//     ({ done, value } = pc2.next(value));
-//     ({ done, value } = pc3.next(value));
-//     ({ done, value } = pc4.next(value));
-//     ({ done, value } = pc5.next(value));
-//   }
-// }
-//
-// pipe(
-//   permutations(range(5, 10), 5),
-//   map(dothething),
-//   max(),
-//   x => console.log(x),
-// );
+function dothething2([pa, pb, pc, pd, pe]) {
+  let v1, v2, v3, v4, v5 = 0;
+  let done;
+  let res;
+
+  const pc1 = solve(input, pa, v5);
+  ({ value: v1 } = pc1.next());
+
+  const pc2 = solve(input, pb, v1);
+  ({ value: v2 } = pc2.next());
+
+  const pc3 = solve(input, pc, v2);
+  ({ value: v3 } = pc3.next());
+
+  const pc4 = solve(input, pd, v3);
+  ({ value: v4 } = pc4.next());
+
+  const pc5 = solve(input, pe, v4);
+  ({ value: v5, done } = pc5.next());
+
+  while (!done) {
+    ({ value: v1 } = pc1.next(v5));
+    ({ value: v2 } = pc2.next(v1));
+    ({ value: v3 } = pc3.next(v2));
+    ({ value: v4 } = pc4.next(v3));
+    ({ value: v5, done } = pc5.next(v4));
+    if (!done) res = v5;
+  }
+
+  return res;
+}
+
+pipe(
+  permutations(range(5, 10), 5),
+  map(dothething2),
+  max(),
+  x => console.log(x),
+);
