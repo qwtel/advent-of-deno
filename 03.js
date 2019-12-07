@@ -1,9 +1,9 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
-import { fromJS, Map, Set, List, is } from 'immutable'
+import { fromJS, Set, List, is } from 'immutable'
 
 import { read } from './util/aoc.ts';
-import { pipe, range, zip2, min, flatMap, map, flatten, scan, repeat, takeWhile, sum, count } from './util/lilit.ts'
+import { pipe, min, flatMap, map, scan, repeat, takeWhile, sum, count } from './util/lilit.ts'
 
 const intersect = (...xss) => Set.prototype.intersect.call(...map(Set)(xss));
 
