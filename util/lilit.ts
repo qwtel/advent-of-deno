@@ -113,6 +113,22 @@ export function take<X>(n: number) {
   };
 }
 
+export function first<X>(fallback: X) {
+  return function(xs: Iterable<X>): X {
+    const it = iterator(xs);
+    const res = it.next();
+    return res.value || fallback;
+  }
+}
+
+export function last<X>(fallback: X) {
+  return function(xs: Iterable<X>): X {
+    let res: X;
+    for (const x of xs) res = x;
+    return res || fallback;
+  }
+}
+
 // TODO: rename?
 export function partitionAt<X>(n: number) {
   return function(xs: Iterable<X>): [IterableIterator<X>, IterableIterator<X>] {
