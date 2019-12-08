@@ -421,9 +421,8 @@ export function endWith<X>(...zs: X[]) {
 
 export function sort<X>(cf: (a: X, b: X) => number) {
   return function*(xs: Iterable<X>): IterableIterator<X> {
-    let arr = [];
-    for (const x of xs) arr.push(x);
-    for (const x of arr.sort(cf)) yield x;
+    const arr = [...xs].sort(cf);
+    for (const x of arr) yield x;
   };
 }
 
@@ -487,8 +486,7 @@ export function groupedUntilChanged<X>(equals: (a: X, b: X) => boolean = (a, b) 
 
 export function unique<X>(comp: (a: X, b: X) => boolean = (a, b) => a === b) {
   return function*(xs: Iterable<X>): IterableIterator<X> {
-    const arr = [];
-    for (const x of xs) arr.push(x);
+    const arr = [...xs];
     const unq = arr.filter((x, i, self) => self.findIndex(y => comp(x, y)) === i);
     for (const u of unq) yield u;
   };
@@ -498,9 +496,7 @@ export { unique as distinct }
 
 export function uniqueSorted<X>(comp: (a: X, b: X) => boolean = (a, b) => a === b) {
   return function*(xs: Iterable<X>): IterableIterator<X> {
-    const arr = [];
-    for (const x of xs) arr.push(x);
-    arr.sort();
+    const arr = [...xs].sort(); // FIXME
     for (const x of distinctUntilChanged(comp)(arr)) yield x;
   };
 }
@@ -610,7 +606,7 @@ export function* product(...xss: Iterable<{}>[]): IterableIterator<{}[]> {
   for (const prod of result) yield prod;
 }
 
-export function* productN(xs: Iterable<{}>, r: number = 1): IterableIterator<{}[]> {
+export function* productN<X>(xs: Iterable<X>, r: number = 1): IterableIterator<X[]> {
   const pools = repeat([...xs], r);
   let result = [[]];
   for (const pool of pools) {
@@ -621,8 +617,6 @@ export function* productN(xs: Iterable<{}>, r: number = 1): IterableIterator<{}[
   for (const prod of result) yield prod;
 }
 
-// TODO: other name (look at python itertools?)
-// TODO: fix implementation
 export function* combinations2<X>(xs: Iterable<X>): IterableIterator<[X, X]> {
   let [as, bs] = tee(xs);
 
@@ -636,18 +630,18 @@ export function* combinations2<X>(xs: Iterable<X>): IterableIterator<[X, X]> {
   }
 }
 
-export function* combinations3<X>(xs: Iterable<X>): IterableIterator<[X, X, X]> {
-  throw Error('Not implemented');
+export function combinations3<X>(xs: Iterable<X>): IterableIterator<[X, X, X]> {
+  return combinations(xs, 3) as IterableIterator<[X, X, X]>;
 }
 
-export function* combinations(xs: Iterable<{}>, r: number = null): IterableIterator<{}[]> {
+export function* combinations<X>(xs: Iterable<X>, r: number = null): IterableIterator<X[]> {
   const pool = [...xs];
   const n = pool.length;
   const rv = [...range(0, n)];
   for (const indices of permutations(rv, r)) {
     if (pipe(indices, sort((a, b) => a - b), _ => zip2(_, indices), every(([a, b]) => a === b))) {
       const tuple = [];
-      for (let i of <number[]>indices) tuple.push(pool[i]);
+      for (let i of indices) tuple.push(pool[i]);
       yield tuple;
     }
   }
@@ -669,21 +663,6 @@ export function* combinationsWithReplacement2<X>(xs: Iterable<X>): IterableItera
 
 export function* combinationsWithReplacement3<X>(xs: Iterable<X>): IterableIterator<[X, X, X]> {
   throw Error('Not implemented');
-  // let [as, bs, cs] = teeN(xs, 3);
-
-  // let bs2: Iterable<X>;
-  // let cs2: Iterable<X>;
-  // let i = 0;
-  // let j = 0;
-  // for (const a of as) {
-  //   [bs, bs2] = tee(bs);
-  //   for (const b of skip<X>(i++)(bs2)) {
-  //     [cs, cs2] = tee(cs);
-  //     for (const c of skip<X>(j++)(cs2)) {
-  //       yield [a, b, c];
-  //     }
-  //   }
-  // }
 }
 
 export function* combinationsWithReplacement(xs: Iterable<{}>, r: number = 2): IterableIterator<{}[]> {
@@ -691,21 +670,21 @@ export function* combinationsWithReplacement(xs: Iterable<{}>, r: number = 2): I
 }
 
 export function* permutations2<X>(xs: Iterable<X>): IterableIterator<[X, X]> {
-  throw Error('Not implemented');
+  return permutations(xs, 2) as IterableIterator<[X, X]>;
 }
 
 export function* permutations3<X>(xs: Iterable<X>): IterableIterator<[X, X, X]> {
-  throw Error('Not implemented');
+  return permutations(xs, 3) as IterableIterator<[X, X, X]>;
 }
 
-export function* permutations<T>(xs: Iterable<T>, r: number = 2): IterableIterator<T[]> {
+export function* permutations<X>(xs: Iterable<X>, r: number = 2): IterableIterator<X[]> {
   const pool = [...xs];
   const n = pool.length;
   r = r == null ? n : r;
   for (const indices of productN(range(0, n), r)) {
     if (pipe(indices, unique(), length()) === r) {
       const tuple = [];
-      for (let i of <number[]>indices) tuple.push(pool[i]);
+      for (let i of indices) tuple.push(pool[i]);
       yield tuple;
     }
   }
@@ -762,11 +741,10 @@ export function* interleave3<X, Y, Z>(
 export function* interleave(...xss: Iterable<{}>[]): IterableIterator<{}> {
   const its = xss.map(iterator);
   // Throwback to the 90s
-  outerloop: while (true) {
+  outer: while (true) {
     for (const it of its) {
       const { done, value } = it.next();
-      // Yup, this just happened
-      if (done) break outerloop;
+      if (done) break outer;
       else yield value;
     }
   }
