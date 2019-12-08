@@ -14,18 +14,18 @@ export class Array2D<X> {
         return a;
     }
 
-    constructor(bounds: Bounds = [[0, 0], [1, 1]]) {
+    constructor(bounds: Bounds = [[0, 0], [1, 1]], f: any = 0) {
         const [[minX, minY], [maxX, maxY]] = this._bounds = bounds;
         const [diffX, diffY] = [maxX - minX, maxY - minY];
-        this._array = new Array(diffY).fill(0).map(() => new Array(diffX).fill(0));
+        this._array = new Array(diffY).fill(f).map(() => new Array(diffX).fill(f));
     }
 
-    _coordToIndex([x, y]: Point): [number, number] {
+    private _coordToIndex([x, y]: Point): [number, number] {
         const [[minX, minY]] = this.bounds;
         return [x - minX, y - minY];
     }
 
-    _indexToCoord(i: number, j: number): Point {
+    private _indexToCoord(i: number, j: number): Point {
         const [[minX, minY]] = this.bounds;
         return [i + minX, j + minY];
     }
