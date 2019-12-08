@@ -10,7 +10,7 @@ const edges = input
   .trim()
   .split('\n')
   .map(line => line.match(/([A-Z0-9]+)\)([A-Z0-9]+)/))
-  .map(([, a, b]) => [a, b])
+  .map(([, a, b]) => [a, b]);
 
 const { vertices, deps, dirs } = makeGraph(edges);
 
@@ -24,4 +24,4 @@ console.log(pipe(
 ))
 
 // 2
-console.log(bfs({ vertices, dirs, deps }, 'YOU', 'SAN').length - 2)
+console.log(bfs({ vertices, dirs, deps, edges }, 'YOU', 'SAN').length - 2)
