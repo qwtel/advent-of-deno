@@ -1,8 +1,8 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
-import { read } from './util/aoc.ts';
-import { pipe, map, grouped, forEach } from './util/lilit.ts'
-import { pad, mod } from './util/other.ts';
+import { read } from '../util/aoc.ts';
+import { pipe, map, grouped, forEach } from '../util/lilit.ts'
+import { pad, mod } from '../util/other.ts';
 
 import { run } from './05_run.js';
 

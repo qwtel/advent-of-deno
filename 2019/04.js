@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
-import { read } from './util/aoc.ts';
-import { pipe, length, groupedUntilChanged, some, unique, filter, range, map, pairwise, every } from './util/lilit.ts';
+import { read } from '../util/aoc.ts';
+import { pipe, length, groupedUntilChanged, some, unique, filter, range, map, pairwise, every } from '../util/lilit.ts';
 
 // const env = Deno.env();
 

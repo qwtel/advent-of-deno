@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --importmap=import_map.json
 
-import { read } from './util/aoc.ts';
-import { pipe, map, sum, takeWhile, scan, constantly } from './util/lilit.ts'
+import { read } from '../util/aoc.ts';
+import { pipe, map, sum, takeWhile, scan, constantly } from '../util/lilit.ts'
 
 const input = (await read(Deno.stdin))
   .trim()

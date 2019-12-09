@@ -1,5 +1,5 @@
-import { pad, mod } from './util/other.ts';
-import { pipe, map, grouped, forEach } from './util/lilit.ts'
+import { pad, mod } from '../util/other.ts';
+import { pipe, map, grouped, forEach } from '../util/lilit.ts'
 
 const env = Deno.env()
 
