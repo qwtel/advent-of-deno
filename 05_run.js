@@ -29,24 +29,24 @@ export function* run(input, ...inits) {
 
     if (env.DEBUG) console.log('---');
 
+    const getParam = (nr) => {
+      const u = 100 * 10**nr;
+      const l = 10 * 10**nr;
+      const mode = Math.floor(mod(inst, u) / l);
+      const param = mem[pc++];
+      return mode ? param : mem[param];
+    }
+
     switch (opcode) {
       case 1: {
-        const mode1 = Math.floor(mod(inst, 1000) / 100);
-        const mode2 = Math.floor(mod(inst, 10000) / 1000);
-        const param1 = mem[pc++];
-        const param2 = mem[pc++];
-        const a = mode1 ? param1 : mem[param1];
-        const b = mode2 ? param2 : mem[param2];
+        const a = getParam(1);
+        const b = getParam(2);
         mem[mem[pc++]] = a + b;
         break;
       }
       case 2: {
-        const mode1 = Math.floor(mod(inst, 1000) / 100);
-        const mode2 = Math.floor(mod(inst, 10000) / 1000);
-        const param1 = mem[pc++];
-        const param2 = mem[pc++];
-        const a = mode1 ? param1 : mem[param1];
-        const b = mode2 ? param2 : mem[param2];
+        const a = getParam(1);
+        const b = getParam(2);
         mem[mem[pc++]] = a * b;
         break;
       }
@@ -55,48 +55,31 @@ export function* run(input, ...inits) {
         break;
       }
       case 4: {
-        const mode1 = Math.floor(mod(inst, 1000) / 100);
-        const param1 = mem[pc++];
-        inits.push(yield mode1 ? param1 : mem[param1]);
+        const a = getParam(1);
+        inits.push(yield a);
         break;
       }
       case JUMP_IF_TRUE: {
-        const mode1 = Math.floor(mod(inst, 1000) / 100);
-        const mode2 = Math.floor(mod(inst, 10000) / 1000);
-        const param1 = mem[pc++];
-        const param2 = mem[pc++];
-        const a = mode1 ? param1 : mem[param1];
-        const b = mode2 ? param2 : mem[param2];
+        const a = getParam(1);
+        const b = getParam(2);
         if (a !== 0) pc = b
         break;
       }
       case JUMP_IF_FALSE: {
-        const mode1 = Math.floor(mod(inst, 1000) / 100);
-        const mode2 = Math.floor(mod(inst, 10000) / 1000);
-        const param1 = mem[pc++];
-        const param2 = mem[pc++];
-        const a = mode1 ? param1 : mem[param1];
-        const b = mode2 ? param2 : mem[param2];
+        const a = getParam(1);
+        const b = getParam(2);
         if (a === 0) pc = b
         break;
       }
       case LESS_THAN: {
-        const mode1 = Math.floor(mod(inst, 1000) / 100);
-        const mode2 = Math.floor(mod(inst, 10000) / 1000);
-        const param1 = mem[pc++];
-        const param2 = mem[pc++];
-        const a = mode1 ? param1 : mem[param1];
-        const b = mode2 ? param2 : mem[param2];
+        const a = getParam(1);
+        const b = getParam(2);
         mem[mem[pc++]] = a < b ? 1 : 0;
         break;
       }
       case EQUALS: {
-        const mode1 = Math.floor(mod(inst, 1000) / 100);
-        const mode2 = Math.floor(mod(inst, 10000) / 1000);
-        const param1 = mem[pc++];
-        const param2 = mem[pc++];
-        const a = mode1 ? param1 : mem[param1];
-        const b = mode2 ? param2 : mem[param2];
+        const a = getParam(1);
+        const b = getParam(2);
         mem[mem[pc++]] = a === b ? 1 : 0;
         break;
       }
