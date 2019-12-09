@@ -15,14 +15,17 @@ const JUMP_IF_FALSE = 6;
 const LESS_THAN = 7;
 const EQUALS = 8;
 
-export function* run(input, ...inits) {
-  const mem = [...input];
+export function* run(initialMemory, ...initialInputs) {
+  const mem = [...initialMemory].map(BigInt);
+  const inputs = initialInputs.map(BigInt);
 
-  let pc = 0;
+  let pc = 0n;
+  let rb = 0n;
+
   while (true) {
     if (env.DEBUG) print(mem);
 
-    const inst = mem[pc++];
+    const inst = Number(mem[pc++]);
     const opcode = mod(inst, 100);
 
     if (opcode === 99) break;
@@ -30,57 +33,81 @@ export function* run(input, ...inits) {
     if (env.DEBUG) console.log('---');
 
     const getParam = (nr) => {
-      const u = 100 * 10**nr;
-      const l = 10 * 10**nr;
+      const u = 100 * 10 ** nr;
+      const l = 10 * 10 ** nr;
       const mode = Math.floor(mod(inst, u) / l);
       const param = mem[pc++];
-      return mode ? param : mem[param];
+      switch (mode) {
+        case 0: return mem[param] || 0n;
+        case 1: return param;
+        case 2: return mem[rb + param] || 0n;
+        default: throw Error(String(mode));
+      }
+    }
+
+    const setParam = (nr, value) => {
+      const u = 100 * 10 ** nr;
+      const l = 10 * 10 ** nr;
+      const mode = Math.floor(mod(inst, u) / l);
+      const param = mem[pc++];
+      switch (mode) {
+        case 0: mem[param] = value; break;
+        case 2: mem[rb + param] = value; break;
+        case 1: throw Error('Immediate mode not allowed here');
+        default: throw Error(String(mode));
+      }
     }
 
     switch (opcode) {
       case 1: {
         const a = getParam(1);
         const b = getParam(2);
-        mem[mem[pc++]] = a + b;
+        setParam(3, a + b);
         break;
       }
       case 2: {
         const a = getParam(1);
         const b = getParam(2);
-        mem[mem[pc++]] = a * b;
+        setParam(3, a * b);
         break;
       }
       case 3: {
-        mem[mem[pc++]] = inits.shift();
+        setParam(1, inputs.shift());
         break;
       }
       case 4: {
         const a = getParam(1);
-        inits.push(yield a);
+        const b = yield Number(a);
+        if (b) inputs.push(BigInt(b));
         break;
       }
       case JUMP_IF_TRUE: {
         const a = getParam(1);
         const b = getParam(2);
-        if (a !== 0) pc = b
+        if (a !== 0n) pc = b
         break;
       }
       case JUMP_IF_FALSE: {
         const a = getParam(1);
         const b = getParam(2);
-        if (a === 0) pc = b
+        if (a === 0n) pc = b
         break;
       }
       case LESS_THAN: {
         const a = getParam(1);
         const b = getParam(2);
-        mem[mem[pc++]] = a < b ? 1 : 0;
+        setParam(3, a < b ? 1n : 0n);
         break;
       }
       case EQUALS: {
         const a = getParam(1);
         const b = getParam(2);
-        mem[mem[pc++]] = a === b ? 1 : 0;
+        setParam(3, a === b ? 1n : 0n);
+        break;
+      }
+      case 9: {
+        const a = getParam(1);
+        rb += a;
         break;
       }
       default: throw Error(String(opcode));
