@@ -77,8 +77,8 @@ export function* run(initialMemory, ...initialInputs) {
       }
       case 4: {
         const a = getParam(1);
-        const b = yield Number(a);
-        if (b) inputs.push(BigInt(b));
+        const x = yield Number(a);
+        if (x) inputs.push(BigInt(x));
         break;
       }
       case JUMP_IF_TRUE: {
@@ -113,5 +113,5 @@ export function* run(initialMemory, ...initialInputs) {
       default: throw Error(String(opcode));
     }
   }
-  return mem[0];
+  return Number(mem[0]);
 }

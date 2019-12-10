@@ -5,6 +5,7 @@ import { pipe, map, range, permutations, max } from '../util/lilit.ts';
 
 import { run } from './05_run.js';
 
+// @ts-ignore
 const input = (await read(Deno.stdin))
   .trim()
   .split(',')

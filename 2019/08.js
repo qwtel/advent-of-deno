@@ -1,9 +1,10 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, map, range, permutations, max, grouped, findIndex, minBy, zip, product2 } from '../util/lilit.ts';
+import { pipe, zipMap, range, grouped, minByKey, zip2, intoArray } from '../util/lilit.ts';
 import { Array2D } from '../util/array2d.ts';
 
+// @ts-ignore
 const input = (await read(Deno.stdin))
   .trim()
   .split('')
@@ -15,28 +16,28 @@ const height = 6;
 const layers = pipe(
   input,
   grouped(width * height),
-  Array.from,
+  intoArray(),
 )
 
 // 1
 pipe(
   layers,
-  map(l => [l, l.filter(p => p === 0).length]),
-  minBy((a, b) => a[1] - b[1]),
+  zipMap(l => l.filter(p => p === 0).length),
+  minByKey(1),
   ([l]) => l.filter(p => p === 1).length * l.filter(p => p === 2).length,
   x =>  console.log(x),
 )
 
 // 2
-const a = new Array2D([[0, 0], [width, height]], null);
+const arr2d = new Array2D([[0, 0], [width, height]], null);
 for (const layer of layers) {
   const rows = pipe(layer, grouped(width));
-  for (const [row, y] of zip(rows, range(0))) {
-    for (const [p, x] of zip(row, range(0))) {
-      if (p !== 2 && a.get([x, y]) === null) {
-        a.set([x, y], p);
+  for (const [row, y] of zip2(rows, range(0))) {
+    for (const [pixel, x] of zip2(row, range(0))) {
+      if (pixel !== 2 && arr2d.get([x, y]) === null) {
+        arr2d.set([x, y], pixel);
       }
     }
   }
 }
-console.log(a.map(x => x === 1 ? '+' : ' ').toString());
+console.log(arr2d.map(x => x === 1 ? '+' : ' ').toString());

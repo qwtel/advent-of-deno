@@ -6,6 +6,7 @@ import { pad } from '../util/other.ts';
 
 const env = Deno.env()
 
+// @ts-ignore
 const input = (await read(Deno.stdin))
   .trim()
   .split(',')

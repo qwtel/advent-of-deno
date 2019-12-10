@@ -4,6 +4,7 @@ import { read } from '../util/aoc.ts';
 import { pipe, map, sum } from '../util/lilit.ts';
 import { makeGraph, bfs } from '../util/graph.ts'
 
+// @ts-ignore
 const input = await read(Deno.stdin);
 
 const edges = input

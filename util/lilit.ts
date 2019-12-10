@@ -575,6 +575,8 @@ export function intoArray<X>() {
   return (xs: Iterable<X>) => [...xs];
 }
 
+export { intoArray as share }
+
 export function intoSet<X>() {
   return (xs: Iterable<X>) => new Set(xs);
 }

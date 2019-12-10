@@ -3,6 +3,7 @@
 import { read } from '../util/aoc.ts';
 import { pipe, map, sum, takeWhile, scan, constantly } from '../util/lilit.ts'
 
+// @ts-ignore
 const input = (await read(Deno.stdin))
   .trim()
   .split('\n')
