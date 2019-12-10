@@ -16,7 +16,8 @@ const print = (mem) => pipe(
   mem, 
   map(pad(8, ' ')),
   grouped(4, 4, true), 
-  forEach(x => console.log(x.join(','))),
+  map(x => x.join('')),
+  forEach(console.log),
 );
 
 function solve(inp, noun, verb) {

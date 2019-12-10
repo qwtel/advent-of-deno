@@ -15,7 +15,7 @@ pipe(
   input,
   map(calcFuel),
   sum(),
-  f => console.log(f),
+  console.log,
 );
 
 // "Imperative" solution
@@ -41,5 +41,5 @@ pipe(
   input,
   map(calcFuel2),
   sum(),
-  f => console.log(f)
+  console.log,
 );

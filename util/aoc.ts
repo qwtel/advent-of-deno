@@ -24,3 +24,6 @@ export function args(flags: string[], defaults: number[]): Iterable<number> {
         replaceWhen(Number.isNaN, defaults),
     );
 }
+
+// Patch the global console object so that methods can be passed to other functions
+for (const key in console) if (typeof console[key] === 'function') console[key] = console[key].bind(console);

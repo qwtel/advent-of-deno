@@ -25,7 +25,7 @@ pipe(
   zipMap(l => l.filter(p => p === 0).length),
   minByKey(1),
   ([l]) => l.filter(p => p === 1).length * l.filter(p => p === 2).length,
-  x =>  console.log(x),
+  console.log,
 )
 
 // 2

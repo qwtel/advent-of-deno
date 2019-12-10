@@ -44,7 +44,7 @@ pipe(
   intersect(...paths),
   map(inter => manhattanDist([0, 0], inter)),
   min(),
-  x => console.log(x)
+  console.log,
 );
 
 // 2
@@ -62,7 +62,7 @@ pipe(
     sum(),
   )),
   min(),
-  x => console.log(x),
+  console.log,
 );
 
 // Old solution

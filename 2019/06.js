@@ -18,11 +18,12 @@ const { vertices, deps, dirs } = makeGraph(edges);
 // 1
 const countOrbits = ([v]) => v === 'COM' ? 1 : 1 + countOrbits(deps.get(v));
 
-console.log(pipe(
+pipe(
   deps.values(),
   map(countOrbits),
   sum(),
-))
+  console.log,
+);
 
 // 2
-console.log(bfs({ vertices, dirs, deps, edges }, 'YOU', 'SAN').length - 2)
+console.log(bfs({ vertices, dirs, deps }, 'YOU', 'SAN').length - 2)

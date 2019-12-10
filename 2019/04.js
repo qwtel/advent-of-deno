@@ -19,15 +19,17 @@ const shared = pipe(
 );
 
 // 1
-console.log(pipe(
+pipe(
   shared,
   filter(digits => pipe(digits, unique(), length()) <= 5),
   length(),
-));
+  console.log,
+);
 
 // 2
-console.log(pipe(
+pipe(
   shared,
   filter(digits => pipe(digits, groupedUntilChanged(), some(g => g.length === 2))),
   length(),
-));
+  console.log,
+);

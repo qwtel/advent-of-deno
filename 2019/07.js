@@ -25,7 +25,7 @@ pipe(
   permutations(range(0, 5), 5),
   map(solve1),
   max(),
-  x => console.log(x),
+  console.log,
 );
 
 // 2
@@ -61,5 +61,5 @@ pipe(
   permutations(range(5, 10), 5),
   map(solve2),
   max(),
-  x => console.log(x),
+  console.log,
 );
