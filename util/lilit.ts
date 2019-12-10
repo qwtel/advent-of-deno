@@ -10,9 +10,32 @@ export function map<X, Y>(f: (x: X) => Y) {
   };
 }
 
-export function expand<X, Y>(f: (x: X) => Y) {
+// Similar to map, but will yield both x and f(x) as a tuple.
+// Same as `xs => zip2(xs, xs.map(f))`.
+export function zipMap<X, Y>(f: (x: X) => Y) {
   return function*(xs: Iterable<X>): IterableIterator<[X, Y]> {
     for (const x of xs) yield [x, f(x)];
+  };
+}
+
+// Similar to `zipMap`, but expects 2-tuples as input.
+export function expand2<X1, X2, Y>(f: (x: [X1, X2]) => Y) {
+  return function*(xs: Iterable<[X1, X2]>): IterableIterator<[X1, X2, Y]> {
+    for (const x of xs) yield [x[0], x[1], f(x)];
+  };
+}
+
+// Similar to `zipMap`, but expects 3-tuples as input.
+export function expand3<X1, X2, X3, Y>(f: (x: [X1, X2, X3]) => Y) {
+  return function*(xs: Iterable<[X1, X2, X3]>): IterableIterator<[X1, X2, X3, Y]> {
+    for (const x of xs) yield [x[0], x[1], x[2], f(x)];
+  };
+}
+
+// Similar to `zipMap`, but expects n-tuples as input.
+export function expand(f: (x: {}[]) => any) {
+  return function*(xs: Iterable<{}[]>): IterableIterator<{}[]> {
+    for (const x of xs) yield [...x, f(x)];
   };
 }
 
@@ -352,11 +375,25 @@ export function maxBy<X>(cf: (a: X, b: X) => number) {
 }
 
 export function minByKey<X>(key: string | number | symbol) {
-  return minBy<X>((a, b) => a[key] - b[key])
+  return (xs: Iterable<X>): X | null => {
+    const it = iterator(xs);
+    const { done, value } = it.next();
+    if (done) return null;
+    let best = value;
+    for (const x of it) if (x[key] < best[key]) best = x;
+    return best;
+  };
 }
 
 export function maxByKey<X>(key: string | number | symbol) {
-  return maxBy<X>((a, b) => a[key] - b[key])
+  return (xs: Iterable<X>): X | null => {
+    const it = iterator(xs);
+    const { done, value } = it.next();
+    if (done) return null;
+    let best = value;
+    for (const x of it) if (x[key] > best[key]) best = x;
+    return best;
+  };
 }
 
 export function minMaxBy<X>(cf: (a: X, b: X) => number) {
@@ -532,6 +569,18 @@ export function uniqueSorted<X>(comp: (a: X, b: X) => boolean = (a, b) => a === 
     const arr = [...xs].sort(); // FIXME
     for (const x of distinctUntilChanged(comp)(arr)) yield x;
   };
+}
+
+export function intoArray<X>() {
+  return (xs: Iterable<X>) => [...xs];
+}
+
+export function intoSet<X>() {
+  return (xs: Iterable<X>) => new Set(xs);
+}
+
+export function intoMap<K, V>() {
+  return (xs: Iterable<[K, V]>) => new Map(xs);
 }
 
 // CONSTRUCTORS
