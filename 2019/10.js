@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap, last, take } from '../util/lilit.ts';
+import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap, last, take, inspect, flatten, some, forEach } from '../util/lilit.ts';
 import { Array2D } from '../util/array2d.ts';
 import { pad } from '../util/other.ts';
 
@@ -24,13 +24,13 @@ const asteroids = pipe(
 // 1
 const ne = ([x1, y1], [x2, y2]) => x1 !== x2 || y1 !== y2;
 const mkNe = (p1) => (p2) => ne(p1, p2);
-// const eq = ([x1, y1], [x2, y2]) => x1 === x2 && y1 === y2;
-// const mkEq = (p1) => (p2) => eq(p1, p2);
+const eq = ([x1, y1], [x2, y2]) => x1 === x2 && y1 === y2;
+const mkEq = (p1) => (p2) => eq(p1, p2);
 
+const sub = ([x1, y1], [x2, y2]) => [x1 - x2, y1 - y2];
 const calcAngle = (p1, p2) => {
-  const dx = p1[0] - p2[0];
-  const dy = p1[1] - p2[1];
-  return Math.atan2(dx, dy); // x, y swapped s.t. 0 represents upwards
+  const [dx, dy] = sub(p2, p1);
+  return Math.atan2(dy, dx);
 }
 const mkCalcAngle = (p1) => (p2) => calcAngle(p1, p2);
 
@@ -44,10 +44,20 @@ const [laserPos, nrOfTargets] = pipe(
   )),
   maxByKey(1)
 );
-
 console.log(nrOfTargets)
 
 // 2
+const print = (removed) => console.log(
+  arr2d.map((_, p) => eq(p, laserPos)
+    ? 'X'
+    : eq(p, removed)
+      ? '@' 
+      : pipe(nearestAsteroidsByAngle.values(), flatten(), some(mkEq(p))) 
+        ? '#'
+        : '.').toString()
+);
+
+// const [laserPos, nrOfTargets] = [[8, 3], -1];
 if (env.DEBUG) console.log(`Putting laser at [${laserPos.map(pad(2))}]`);
 
 const dist = ([ax, ay], [bx, by]) => Math.abs(ax - bx) + Math.abs(ay - by);
@@ -60,16 +70,16 @@ const nearestAsteroidsByAngle = pipe(
   intoMap(),
 );
 
-// Keys sorted in reverse due to angle hack (see `calcAngle`)
-const anglesClockwise = [...nearestAsteroidsByAngle.keys()].sort((a, b) => b - a);
+const anglesClockwise = [...nearestAsteroidsByAngle.keys()].sort((a, b) => a - b);
 
 pipe(
   cycle(anglesClockwise),
-  skipWhile(a => a > 0),
+  skipWhile(a => a < -Math.PI/2),
   map(angle => nearestAsteroidsByAngle.get(angle)),
   filter(nearestAsteroids => nearestAsteroids.length),
   map(nearestAsteroids => nearestAsteroids.shift()),
-  take(200),
+  env.DEBUG && inspect(print),
+  take(Math.min(200, asteroids.length - 2)),
   last(),
   p => console.log(p[0] * 100 + p[1])
-)
+);

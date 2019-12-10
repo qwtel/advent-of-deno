@@ -926,6 +926,6 @@ export function pipe<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
 
 export function pipe(x: any, ...fs: Function[]): any {
   let res = x;
-  for (const f of fs) res = f(res);
+  for (const f of fs) if (f) res = f(res);
   return res;
 }
