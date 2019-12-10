@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap } from '../util/lilit.ts';
+import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap, last, take } from '../util/lilit.ts';
 import { Array2D } from '../util/array2d.ts';
 import { pad } from '../util/other.ts';
 
@@ -50,8 +50,8 @@ console.log(nrOfTargets)
 // 2
 if (env.DEBUG) console.log(`Putting laser at [${laserPos.map(pad(2))}]`);
 
-const manhattanDist = ([ax, ay], [bx, by]) => Math.abs(ax - bx) + Math.abs(ay - by);
-const distToLaser = (p) => manhattanDist(laserPos, p)
+const dist = ([ax, ay], [bx, by]) => Math.abs(ax - bx) + Math.abs(ay - by);
+const distToLaser = (p) => dist(laserPos, p)
 
 const nearestAsteroidsByAngle = pipe(
   asteroids.filter(mkNe(laserPos)),
@@ -63,16 +63,23 @@ const nearestAsteroidsByAngle = pipe(
 // Keys sorted in reverse due to angle hack (see `calcAngle`)
 const anglesClockwise = [...nearestAsteroidsByAngle.keys()].sort((a, b) => b - a);
 
-let nrVaporized = 0;
-for (const angle of pipe(cycle(anglesClockwise), skipWhile(a => a > 0))) {
-  const nearestAsteroids = nearestAsteroidsByAngle.get(angle);
-  if (nearestAsteroids.length) {
-    const vaporized = nearestAsteroids.shift()
-    nrVaporized++;
-    if (env.DEBUG) console.log(`Vaporized asteroid ${pad(3)(nrVaporized)} [${vaporized.map(pad(2))}] at π ${angle >= 0 ? ' ' : ''}${angle}`);
-    if (nrVaporized === 200 || nrVaporized === asteroids.length - 1) {
-      console.log(vaporized[0] * 100 + vaporized[1]);
-      break;
-    };
-  }
-}
+let i = 0;
+const print = (vaporized, angle) => {
+  console.log(`Vaporized asteroid ${pad(3)(++i)} [${vaporized.map(pad(2))}] at π ${angle >= 0 ? ' ' : ''}${angle}`);
+};
+
+pipe(
+  (function* () {
+    for (const angle of pipe(cycle(anglesClockwise), skipWhile(a => a > 0))) {
+      const nearestAsteroids = nearestAsteroidsByAngle.get(angle);
+      if (nearestAsteroids.length) {
+        const vaporized = nearestAsteroids.shift();
+        yield vaporized;
+        if (env.DEBUG) print(vaporized, angle);
+      }
+    }
+  }()),
+  take(200),
+  last(),
+  x => console.log(x[0] * 100 + x[1])
+)
