@@ -113,6 +113,18 @@ export function take<X>(n: number) {
   };
 }
 
+const undef = Symbol('undefined');
+export function takeLast<X>(n: number) {
+  return function*(xs: Iterable<X>): IterableIterator<X> {
+    const ys = new Array(n).fill(undef);
+    for (const x of xs) {
+      ys.shift();
+      ys.push(x);
+    }
+    for (const y of ys) if (y !== undef) yield y;
+  };
+}
+
 export function first<X>(fallback: X) {
   return function(xs: Iterable<X>): X {
     const it = iterator(xs);
@@ -141,14 +153,10 @@ export { partitionAt as splitAt }
 
 export function skipWhile<X>(f: (x: X) => boolean) {
   return function*(xs: Iterable<X>): IterableIterator<X> {
-    const it = iterator(xs);
-    let first: X;
-    for (const x of it) {
-      first = x;
-      if (!f(x)) break;
+    for (const x of xs) {
+      if (f(x)) continue;
+      yield x;
     }
-    yield first;
-    for (const x of it) yield x;
   };
 }
 

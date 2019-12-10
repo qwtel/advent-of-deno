@@ -113,8 +113,8 @@ export class Array2D<X> {
 
     *coords(): IterableIterator<Point> {
         const [[minX, minY], [maxX, maxY]] = this._bounds;
-        for (let x = minX; x < maxX; x++)
-            for (let y = minY; y < maxY; y++)
+        for (let y = minY; y < maxY; y++)
+            for (let x = minX; x < maxX; x++)
                 yield [x, y];
     }
 

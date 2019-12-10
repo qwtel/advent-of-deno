@@ -42,12 +42,12 @@ export function bfs(g: Graph, source: string, target: string) {
   const q = [source];
   const prev = new Map<string, string>([[source, null]]);
 
-  let curr: string;
-  while (curr = q.pop()) {
+  outer: while (q.length) {
+    const curr = q.pop();
     for (const n of neighbors(g, curr)) {
       if (n === target) {
         prev.set(n, curr);
-        break;
+        break outer;
       } else if (!prev.has(n)) { 
         prev.set(n, curr);
         q.push(n); 
