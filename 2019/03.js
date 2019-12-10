@@ -4,6 +4,7 @@ import { fromJS as tuple, Set, List, is } from 'immutable'
 
 import { read } from '../util/aoc.ts';
 import { pipe, min, flatMap, map, scan, repeat, takeWhile, sum, count, intoArray } from '../util/lilit.ts'
+import { add } from '../util/vec2d.ts';
 
 const intersect = (...xss) => Set.prototype.intersect.call(...map(Set)(xss));
 
@@ -23,14 +24,12 @@ const dirMap = {
   L: [-1, 0],
 };
 
-const pointAdd = ([x, y], [dx, dy]) => [x + dx, y + dy];
-
 const paths = pipe(
   input,
   map((turns) => pipe(
     turns,
     flatMap(([dir, n]) => repeat(dirMap[dir], n)),
-    scan(pointAdd, [0, 0]),
+    scan(add, [0, 0]),
     map(tuple),
     List,
   )),

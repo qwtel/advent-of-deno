@@ -3,6 +3,7 @@
 import { read } from '../util/aoc.ts';;
 import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap, last, take, inspect, flatten, some, forEach } from '../util/lilit.ts';
 import { Array2D } from '../util/array2d.ts';
+import { eq, mkEq, mkNe, sub } from '../util/vec2d.ts';
 import { pad } from '../util/other.ts';
 
 const env = Deno.env();
@@ -22,12 +23,7 @@ const asteroids = pipe(
 );
 
 // 1
-const ne = ([x1, y1], [x2, y2]) => x1 !== x2 || y1 !== y2;
-const mkNe = (p1) => (p2) => ne(p1, p2);
-const eq = ([x1, y1], [x2, y2]) => x1 === x2 && y1 === y2;
-const mkEq = (p1) => (p2) => eq(p1, p2);
 
-const sub = ([x1, y1], [x2, y2]) => [x1 - x2, y1 - y2];
 const calcAngle = (p1, p2) => {
   const [dx, dy] = sub(p2, p1);
   return Math.atan2(dy, dx);
