@@ -79,3 +79,24 @@ pipe(
   last(),
   p => console.log(p[0] * 100 + p[1])
 );
+
+// const nearestByAngle2 = pipe(
+//   asteroids.filter(mkNe(laserPos)),
+//   groupBy(mkCalcAngle(laserPos)),
+//   mapValues(ps => ps.sort((p1, p2) => distToLaser(p1) - distToLaser(p2))),
+//   intoMap(),
+// );
+
+// let nrVaporized = 0;
+// for (const angle of pipe(cycle(anglesClockwise), skipWhile(a => a < -Math.PI/2))) {
+//   const nearest = nearestByAngle2.get(angle);
+//   if (nearest.length) {
+//     const vaporized = nearest.shift();
+//     nrVaporized++;
+//     if (env.DEBUG) console.log(`Vaporized asteroid ${pad(3)(nrVaporized)} [${vaporized.map(pad(2))}] at π ${angle >= 0 ? ' ' : ''}${angle}`);
+//     if (nrVaporized === 200 || nrVaporized === asteroids.length - 2) {
+//       console.log(vaporized[0] * 100 + vaporized[1]);
+//       break;
+//     };
+//   }
+// }
