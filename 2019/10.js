@@ -52,7 +52,7 @@ const print = (removed) => console.log(
     ? 'X'
     : eq(p, removed)
       ? '@' 
-      : pipe(nearestAsteroidsByAngle.values(), flatten(), some(mkEq(p))) 
+      : pipe(nearestByAngle.values(), flatten(), some(mkEq(p))) 
         ? '#'
         : '.').toString()
 );
@@ -63,21 +63,21 @@ if (env.DEBUG) console.log(`Putting laser at [${laserPos.map(pad(2))}]`);
 const dist = ([ax, ay], [bx, by]) => Math.abs(ax - bx) + Math.abs(ay - by);
 const distToLaser = (p) => dist(laserPos, p)
 
-const nearestAsteroidsByAngle = pipe(
+const nearestByAngle = pipe(
   asteroids.filter(mkNe(laserPos)),
   groupBy(mkCalcAngle(laserPos)),
   mapValues(ps => ps.sort((p1, p2) => distToLaser(p1) - distToLaser(p2))),
   intoMap(),
 );
 
-const anglesClockwise = [...nearestAsteroidsByAngle.keys()].sort((a, b) => a - b);
+const anglesClockwise = [...nearestByAngle.keys()].sort((a, b) => a - b);
 
 pipe(
   cycle(anglesClockwise),
   skipWhile(a => a < -Math.PI/2),
-  map(angle => nearestAsteroidsByAngle.get(angle)),
-  filter(nearestAsteroids => nearestAsteroids.length),
-  map(nearestAsteroids => nearestAsteroids.shift()),
+  map(angle => nearestByAngle.get(angle)),
+  filter(nearest => nearest.length),
+  map(nearest => nearest.shift()),
   env.DEBUG && inspect(print),
   take(Math.min(200, asteroids.length - 2)),
   last(),
