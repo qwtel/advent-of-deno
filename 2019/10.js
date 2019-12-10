@@ -63,23 +63,13 @@ const nearestAsteroidsByAngle = pipe(
 // Keys sorted in reverse due to angle hack (see `calcAngle`)
 const anglesClockwise = [...nearestAsteroidsByAngle.keys()].sort((a, b) => b - a);
 
-let i = 0;
-const print = (vaporized, angle) => {
-  console.log(`Vaporized asteroid ${pad(3)(++i)} [${vaporized.map(pad(2))}] at π ${angle >= 0 ? ' ' : ''}${angle}`);
-};
-
 pipe(
-  (function* () {
-    for (const angle of pipe(cycle(anglesClockwise), skipWhile(a => a > 0))) {
-      const nearestAsteroids = nearestAsteroidsByAngle.get(angle);
-      if (nearestAsteroids.length) {
-        const vaporized = nearestAsteroids.shift();
-        yield vaporized;
-        if (env.DEBUG) print(vaporized, angle);
-      }
-    }
-  }()),
+  cycle(anglesClockwise),
+  skipWhile(a => a > 0),
+  map(angle => nearestAsteroidsByAngle.get(angle)),
+  filter(nearestAsteroids => nearestAsteroids.length),
+  map(nearestAsteroids => nearestAsteroids.shift()),
   take(200),
   last(),
-  x => console.log(x[0] * 100 + x[1])
+  p => console.log(p[0] * 100 + p[1])
 )
