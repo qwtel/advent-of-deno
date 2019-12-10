@@ -17,8 +17,8 @@ export function mod(a: number, n: number) {
     return ((a % n) + n) % n
 }
 
-export function pad(p, char = '0') {
-    return n => (new Array(p).fill(char).join('') + n).slice(-p);
+export function pad(n, char = ' ') {
+    return s => (new Array(n).fill(char).join('') + s).slice(-n);
 }
 
 export function transpose(m) {

@@ -4,9 +4,15 @@ import { tee, teeN, iterator } from './common.ts';
 
 // OPERATORS
 
-export function map<A, B>(f: (x: A) => B) {
-  return function*(xs: Iterable<A>): IterableIterator<B> {
+export function map<X, Y>(f: (x: X) => Y) {
+  return function*(xs: Iterable<X>): IterableIterator<Y> {
     for (const x of xs) yield f(x);
+  };
+}
+
+export function expand<X, Y>(f: (x: X) => Y) {
+  return function*(xs: Iterable<X>): IterableIterator<[X, Y]> {
+    for (const x of xs) yield [x, f(x)];
   };
 }
 
@@ -153,10 +159,14 @@ export { partitionAt as splitAt }
 
 export function skipWhile<X>(f: (x: X) => boolean) {
   return function*(xs: Iterable<X>): IterableIterator<X> {
-    for (const x of xs) {
-      if (f(x)) continue;
-      yield x;
+    const it = iterator(xs);
+    let res: IteratorResult<X>;
+    while ((res = it.next(), !res.done)) {
+      if (f(res.value)) continue;
+      else break;
     }
+    yield res.value;
+    for (const x of it) yield x;
   };
 }
 
@@ -341,6 +351,14 @@ export function maxBy<X>(cf: (a: X, b: X) => number) {
   };
 }
 
+export function minByKey<X>(key: string | number | symbol) {
+  return minBy<X>((a, b) => a[key] - b[key])
+}
+
+export function maxByKey<X>(key: string | number | symbol) {
+  return maxBy<X>((a, b) => a[key] - b[key])
+}
+
 export function minMaxBy<X>(cf: (a: X, b: X) => number) {
   return function(xs: Iterable<X>): [X | null, X | null] {
     const it = iterator(xs);
@@ -432,6 +450,13 @@ export function sort<X>(cf: (a: X, b: X) => number) {
     const arr = [...xs].sort(cf);
     for (const x of arr) yield x;
   };
+}
+
+export function reverse<X>() {
+  return function*(xs: Iterable<X>): IterableIterator<X> {
+    const ys = [...xs];
+    while (ys.length) yield ys.pop()
+  }
 }
 
 export function sortScan<X>(cf: (a: X, b: X) => number) {

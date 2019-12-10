@@ -1,83 +1,75 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { skip, flatten, skipWhile, pipe, map, range, permutations, max, grouped, findIndex, minBy, maxBy, zip, product2, filter, unique, count, groupBy, sort, cycle } from '../util/lilit.ts';
+import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, expand, mapValues, skipWhile } from '../util/lilit.ts';
 import { Array2D } from '../util/array2d.ts';
+import { pad } from '../util/other.ts';
 
-// import { run } from './05_run.js';
+const env = Deno.env();
 
+// @ts-ignore
 const input = (await read(Deno.stdin))
   .split('\n')
-  .map(l => l.split(''))
+  .map(l => l.split(''));
 
-const x = Array2D.of(input)
-
-const equal = (a, b) => a[0] === b[0] && a[1] === b[1];
+const arr2d = Array2D.of(input);
 
 const asteroids = pipe(
-  x.entries(),
-  filter(([p, v]) => v === '#'), 
+  arr2d.entries(),
+  filter(([, v]) => v === '#'), 
   map(([p]) => p),
   Array.from,
 );
 
-function* foo() {
-  for (const currPos of asteroids) {
-    const without = asteroids.filter((p) => !equal(p, currPos));
-    const angles = [];
-    for (const p of without) {
-      const dx = currPos[0] - p[0];
-      const dy = currPos[1] - p[1];
-      angles.push(Math.atan2(dx, dy));
-    }
-    yield [currPos, pipe(angles, unique(), count())]
-  }
+// 1
+const equal = (a, b) => a[0] === b[0] && a[1] === b[1];
+// const add  = ([x1, y1], [x2, y2]) => [x1 + x2, y1 + y2];
+// const sub  = ([x1, y1], [x2, y2]) => [x1 - x2, y1 - y2];
+
+const calcAngle = (p1, p2) => {
+  const dx = p1[0] - p2[0];
+  const dy = p1[1] - p2[1];
+  return Math.atan2(dx, dy); // x, y swapped s.t. 0 represents upwards
 }
 
-const [pos, nr] = pipe(foo(), maxBy(([, a], [, b]) => a - b));
-
-console.log(nr)
-console.log(pos)
-console.log('---')
-
-
-// 2
-const data = pipe(asteroids, 
-  filter((p) => !equal(p, pos)),
-  groupBy(p => {
-    const dx = pos[0] - p[0];
-    const dy = pos[1] - p[1];
-    return Math.atan2(dx, dy);
-  }),
+const [laserPos, nrOfTargets] = pipe(
+  asteroids,
+  expand((currPos) => pipe(
+    asteroids.filter((p) => !equal(p, currPos)),
+    map(p => calcAngle(currPos, p)),
+    unique(),
+    count(),
+  )),
+  maxByKey(1),
 );
 
-pipe(
-  data.values(),
-  flatten(),
-  count(),
-  x => console.log('total', x)
-)
+console.log(nrOfTargets)
+
+// 2
+if (env.DEBUG) console.log(`Putting laser at [${laserPos.map(pad(2))}]`);
 
 const manhattanDist = ([ax, ay], [bx, by]) => Math.abs(ax - bx) + Math.abs(ay - by);
-for (const angle of data.keys()) {
-  data.get(angle).sort((p1, p2) => manhattanDist(pos, p1) - manhattanDist(pos, p2));
-}
+const distToLaser = (p) => manhattanDist(laserPos, p)
 
-// console.log(pipe(without.keys(), sort(), Array.from));
-// console.log(...pipe(sortedAngles, skipWhile(x => x < 0)));
+const nearestAsteroidsByAngle = pipe(
+  asteroids.filter((p) => !equal(p, laserPos)),
+  groupBy(p => calcAngle(laserPos, p)),
+  mapValues(ps => ps.sort((p1, p2) => distToLaser(p1) - distToLaser(p2))),
+  _ => new Map(_),
+);
 
-let i = 0;
-const sortedAngles = pipe(data.keys(), sort((a, b) => b - a), Array.from);
-const ind = sortedAngles.findIndex(x => x === 0);
-for (const angle of pipe(cycle(sortedAngles), skip(ind))) {
-  // console.log(angle)
-  const los = data.get(angle);
-  if (los.length) {
-    const last = los.shift()
-    console.log(`nr:${i+1}:`, angle, last);
-    i++;
-    if (i === 200) {
-      console.log(last[0] * 100 + last[1]);
+// Keys sorted in reverse due to angle hack (see `calcAngle`)
+const anglesClockwise = [...nearestAsteroidsByAngle.keys()].sort((a, b) => b - a);
+
+let nrVaporized = 0;
+for (const angle of pipe(cycle(anglesClockwise), skipWhile(a => a > 0))) {
+  const nearestAsteroids = nearestAsteroidsByAngle.get(angle);
+  if (nearestAsteroids.length) {
+    const vaporized = nearestAsteroids.shift()
+    nrVaporized++;
+    if (env.DEBUG) console.log(`Vaporized asteroid ${pad(3)(nrVaporized)} [${vaporized.map(pad(2))}] at π ${angle >= 0 ? ' ' : ''}${angle}`);
+    if (nrVaporized === 200 || nrVaporized === asteroids.length - 1) {
+      console.log(vaporized[0] * 100 + vaporized[1]);
       break;
     };
   }
