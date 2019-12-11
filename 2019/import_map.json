@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "immutable": "https://unpkg.com/immutable@4.0.0-rc.12/dist/immutable.es.js"
-  }
-}

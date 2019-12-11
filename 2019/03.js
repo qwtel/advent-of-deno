@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno --allow-env --importmap=import_map.json
+#!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { fromJS as tuple, Set as ISet, List, is } from 'immutable'
 

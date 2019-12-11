@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno --allow-env --importmap=import_map.json
+#!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';
 import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap, last, take, inspect, flat, some, forEach, skip, first, mapKeys, constantly, unzip2, partition, minMax } from '../util/lilit.ts';

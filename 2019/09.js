@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno --allow-env --importmap=import_map.json
+#!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';;
 
