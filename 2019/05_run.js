@@ -15,9 +15,9 @@ const JUMP_IF_FALSE = 6;
 const LESS_THAN = 7;
 const EQUALS = 8;
 
-export function* run(initialMemory, ...initialInputs) {
+export function* run(initialMemory, initialInputs) {
   const mem = [...initialMemory].map(BigInt);
-  const inputs = initialInputs.map(BigInt);
+  let inputs = initialInputs;
 
   let pc = 0n;
   let rb = 0n;
@@ -72,13 +72,14 @@ export function* run(initialMemory, ...initialInputs) {
         break;
       }
       case 3: {
-        setParam(1, inputs.shift());
+        const { value } = inputs.next();
+        setParam(1, BigInt(value));
         break;
       }
       case 4: {
         const a = getParam(1);
-        const x = yield Number(a);
-        if (x) inputs.push(BigInt(x));
+        const generator = yield Number(a);
+        if (generator) inputs = generator;
         break;
       }
       case JUMP_IF_TRUE: {
