@@ -62,11 +62,5 @@ console.log(solve().size);
 // 2
 const painted = solve([[[0, 0], '#']]);
 
-const arr2d = pipe(
-  painted.keys(),
-  unzip2(),
-  ([xs, ys]) => [minMax()(xs), minMax()(ys)],
-  Array2D.fromMinMax,
-  arr2d => arr2d.map((_, p) => painted.has(p) ? painted.get(p) : '.').transpose().rotateCCW().toString(),
-  console.log,
-);
+const arr2d = Array2D.fromPointMap(painted, '.');
+console.log('' + arr2d.transpose().rotateCCW())

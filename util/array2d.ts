@@ -1,5 +1,9 @@
+import { ValMap } from "./values.js";
+import { pipe, unzip2, minMax } from "./lilit.ts";
+
 export type Point = [number, number];
 export type Bounds = [[number, number], [number, number]];
+// type PointMap<X> = ValMap<Point, X>
 
 export class Array2D<X> {
     private _bounds: Bounds;
@@ -14,14 +18,26 @@ export class Array2D<X> {
         return a;
     }
 
-    static fromMinMax<X>([[minX, maxX], [minY, maxY]]: Bounds) {
-        return new Array2D<X>([[minX, minY], [maxX + 1, maxY + 1]]);
+    static fromMinMax<X>([[minX, maxX], [minY, maxY]]: Bounds, fill: X) {
+        return new Array2D<X>([[minX, minY], [maxX + 1, maxY + 1]], fill);
     }
 
-    constructor(bounds: Bounds = [[0, 0], [1, 1]], f: any = 0) {
+    // TODO: types for point map
+    static fromPointMap<X>(pointMap: ValMap, fill: X) {
+        const a = pipe(
+            pointMap.keys() as IterableIterator<Point>,
+            unzip2(),
+            ([xs, ys]) => [minMax()(xs), minMax()(ys)],
+            _ => Array2D.fromMinMax(_ as Bounds, fill),
+        );
+        pointMap.forEach((value: X, point: Point) => a.set(point, value))
+        return a;
+    }
+
+    constructor(bounds: Bounds = [[0, 0], [1, 1]], fill: any = 0) {
         const [[minX, minY], [maxX, maxY]] = this._bounds = bounds;
         const [diffX, diffY] = [maxX - minX, maxY - minY];
-        this._array = new Array(diffY).fill(f).map(() => new Array(diffX).fill(f));
+        this._array = new Array(diffY).fill(fill).map(() => new Array(diffX).fill(fill));
     }
 
     private _coordToIndex([x, y]: Point): [number, number] {
