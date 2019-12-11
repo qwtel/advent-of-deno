@@ -1,4 +1,15 @@
-#!/usr/bin/env -S deno --importmap=../import_map.json
+// Drop-in replacements for JS `Map` and `Set` types that operate with values instead of object identities.
+// In other words, it allows things like `map.set([0, 0], 'X'); map.get([0, 0]); // => 'X'`.
+// It's not limited to tuples, setting whole objects works too, e.g. `set.add({ a: 0, b: 1 }); set.has({ b: 1, a: 0 }); // => true`.
+//
+// Internally it uses ImmutableJS to for value comparisons, but doesn't expose ImmutableJS types.
+// Instead it converts to and from ImmutableJS as values go in and out.
+// This also means that its performance *is not* comparable to using ImmutableJS proper,
+// or similar functionality in the Clojure/Script standard library.
+// For tuples and small object keys the conversion overhead won't matter much , but beware passing large objects or arrays.
+//
+// This module would be rendered obsolete it if the "Record & Tuple" proposal was to be accepted by TC39:
+// https://github.com/tc39/proposal-record-tuple
 
 import { Map as IMap, Set as ISet, fromJS as _fromJS } from 'immutable';
 
