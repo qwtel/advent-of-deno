@@ -14,6 +14,10 @@ export class Array2D<X> {
         return a;
     }
 
+    static fromMinMax<X>([[minX, maxX], [minY, maxY]]: Bounds) {
+        return new Array2D<X>([[minX, minY], [maxX + 1, maxY + 1]]);
+    }
+
     constructor(bounds: Bounds = [[0, 0], [1, 1]], f: any = 0) {
         const [[minX, minY], [maxX, maxY]] = this._bounds = bounds;
         const [diffX, diffY] = [maxX - minX, maxY - minY];
@@ -32,7 +36,7 @@ export class Array2D<X> {
 
     clone(): Array2D<X> {
         const a = new Array2D<X>();
-        const { array, bounds } = this; 
+        const { array, bounds } = this; // implicit clone
         a._array = array;
         a._bounds = bounds;
         return a;
@@ -99,6 +103,18 @@ export class Array2D<X> {
         a._array = this._array[0].map((_, i) => this._array.map(r => r[i]));
         a._bounds = this.bounds;
         return a;
+    }
+
+    rotate(): Array2D<X> {
+        const a = this.transpose();
+        a._array.forEach(row => row.reverse())
+        return a;
+    }
+
+    rotateCCW(): Array2D<X> {
+        const a = this.clone();
+        a._array.forEach(row => row.reverse())
+        return a.transpose();
     }
 
     // TODO: this is probably not doing what you'd expect

@@ -1,12 +1,12 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
-import { fromJS as tuple, Set, List, is } from 'immutable'
+import { fromJS as tuple, Set as ISet, List, is } from 'immutable'
 
 import { read } from '../util/aoc.ts';
-import { pipe, min, flatMap, map, scan, repeat, takeWhile, sum, count, intoArray } from '../util/lilit.ts'
+import { pipe, min, flatMap, map, scan, repeat, takeWhile, sum, count, share } from '../util/lilit.ts'
 import { add } from '../util/vec2d.ts';
 
-const intersect = (...xss) => Set.prototype.intersect.call(...map(Set)(xss));
+const intersect = (...xss) => ISet.prototype.intersect.call(...map(ISet)(xss));
 
 // @ts-ignore
 const input = (await read(Deno.stdin))
@@ -33,7 +33,7 @@ const paths = pipe(
     map(tuple),
     List,
   )),
-  intoArray(),
+  share(),
 );
 
 // 1

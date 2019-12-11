@@ -1,10 +1,13 @@
 import { pipe, map, replaceWhen } from './lilit.ts';
 
+// IMPORTANT: Patching the global console object so that methods can be passed to other functions.
+for (const key in console) if (typeof console[key] === 'function') console[key] = console[key].bind(console);
+
 /**
  * Helper function to read the standard input (or any other stream) 
  * to the end and return as UTF-8 string.
  */
-export async function read(file: Deno.File): Promise<string> {
+export async function read(file: Deno.File = Deno.stdin): Promise<string> {
     const b = new Deno.Buffer();
     await b.readFrom(file);
     return b.toString();
@@ -24,6 +27,3 @@ export function args(flags: string[], defaults: number[]): Iterable<number> {
         replaceWhen(Number.isNaN, defaults),
     );
 }
-
-// Patch the global console object so that methods can be passed to other functions
-for (const key in console) if (typeof console[key] === 'function') console[key] = console[key].bind(console);

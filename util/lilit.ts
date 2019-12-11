@@ -1,3 +1,5 @@
+// My little iterator library ("lilit")
+
 import { tee, teeN, iterator } from './common.ts';
 
 
@@ -142,21 +144,30 @@ export function take<X>(n: number) {
   };
 }
 
-const undef = Symbol('undefined');
 export function takeLast<X>(n: number) {
+  const UNDEF = Symbol('UNDEF');
   return function*(xs: Iterable<X>): IterableIterator<X> {
-    const ys = new Array(n).fill(undef);
+    const ys = new Array(n).fill(UNDEF);
     for (const x of xs) {
       ys.shift();
       ys.push(x);
     }
-    for (const y of ys) if (y !== undef) yield y;
+    for (const y of ys) if (y !== UNDEF) yield y;
   };
 }
 
 export function first<X>(fallback: X) {
   return function(xs: Iterable<X>): X {
     const it = iterator(xs);
+    const res = it.next();
+    return res.value || fallback;
+  }
+}
+
+export function second<X>(fallback: X) {
+  return function(xs: Iterable<X>): X {
+    const it = iterator(xs);
+    it.next();
     const res = it.next();
     return res.value || fallback;
   }
@@ -236,6 +247,7 @@ export function pluck<X>(key: string | number) {
 }
 
 // like pluck, but accepts an iterable of keys
+// TODO: name?
 export function select<X>(keys: Array<string | number>) {
   return function*(xs: Iterable<Object>): IterableIterator<X | null> {
     for (const x of xs) {
@@ -248,10 +260,22 @@ export function select<X>(keys: Array<string | number>) {
   };
 }
 
+function pluckFirst<X, Y>() {
+  return function*(xs: Iterable<[X, Y]>): IterableIterator<X | null> {
+    for (const [x] of xs) yield x;
+  };
+}
+
+function pluckSecond<X, Y>() {
+  return function*(xs: Iterable<[X, Y]>): IterableIterator<Y | null> {
+    for (const [, y] of xs) yield y;
+  };
+}
+
 export function unzip2<X, Y>() {
   return function(xs: Iterable<[X, Y]>): [IterableIterator<X>, IterableIterator<Y>] {
     const [xs1, xs2] = tee(xs);
-    return [pluck<X>(0)(xs1), pluck<Y>(1)(xs2)];
+    return [pluckFirst<X, Y>()(xs1), pluckSecond<X, Y>()(xs2)];
   };
 }
 
@@ -293,11 +317,15 @@ export function mapKeys<KA, KB, V>(f: (k: KA) => KB) {
   };
 }
 
+export { mapKeys as mapFirst }
+
 export function mapValues<VA, VB, K>(f: (v: VA) => VB) {
   return function*(xs: Iterable<[K, VA]>): IterableIterator<[K, VB]> {
     for (const [k, v] of xs) yield [k, f(v)];
   };
 }
+
+export { mapKeys as mapSecond }
 
 export function pairwise<X>() {
   return function*(xs: Iterable<X>): IterableIterator<[X, X]> {
