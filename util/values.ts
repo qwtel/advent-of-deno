@@ -10,10 +10,11 @@ type IV = { toJS: any };
 const toJS = <K>(_: IV) => (_ && _.toJS ? _.toJS() : _) as K;
 const fromJS = <K>(_: K): IV => _fromJS(_);
 
-export class ValMap<K, V> implements Map<K, V> {
+export class ValMap<K, V> extends Map<K, V> {
   private _map: any;
 
   constructor(init?: Iterable<[K, V]>) {
+    super();
     this._map = IMap(mapKeys<K, IV, V>(fromJS)(init || [])).asMutable();
   }
 
@@ -70,10 +71,11 @@ export class ValMap<K, V> implements Map<K, V> {
   }
 }
 
-export class ValSet<V> implements Set<V> {
+export class ValSet<V> extends Set<V> {
   private _set: any;
 
   constructor(init?: Iterable<V>) {
+    super();
     this._set = ISet(map<V, IV>(fromJS)(init || [])).asMutable();
   }
 
