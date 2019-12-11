@@ -1,9 +1,9 @@
 #!/usr/bin/env -S deno --allow-env --importmap=import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap, last, take, inspect, flatten, some, forEach } from '../util/lilit.ts';
+import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap, last, take, inspect, flat, some, forEach } from '../util/lilit.ts';
 import { Array2D } from '../util/array2d.ts';
-import { eq, mkEq, mkNe, sub } from '../util/vec2d.ts';
+import { eq, ne, sub } from '../util/vec2d.ts';
 import { pad } from '../util/other.ts';
 
 const env = Deno.env();
@@ -17,7 +17,7 @@ const arr2d = Array2D.of(input);
 
 const asteroids = pipe(
   arr2d.entries(),
-  filter(([, v]) => v === '#'), 
+  filter(([, v]) => v === '#'),
   map(([p]) => p),
   intoArray(),
 );
@@ -28,13 +28,12 @@ const calcAngle = (p1, p2) => {
   const [dx, dy] = sub(p2, p1);
   return Math.atan2(dy, dx);
 }
-const mkCalcAngle = (p1) => (p2) => calcAngle(p1, p2);
 
 const [laserPos, nrOfTargets] = pipe(
   asteroids,
   zipMap((currPos) => pipe(
-    asteroids.filter(mkNe(currPos)),
-    map(mkCalcAngle(currPos)),
+    asteroids.filter(a => ne(currPos, a)),
+    map(a => calcAngle(currPos, a)),
     unique(),
     count(),
   )),
@@ -48,7 +47,7 @@ const print = (removed) => console.log(
     ? 'X'
     : eq(p, removed)
       ? '@' 
-      : pipe(nearestByAngle.values(), flatten(), some(mkEq(p))) 
+      : pipe(nearestByAngle.values(), flat(), some(a => eq(p, a)))
         ? '#'
         : '.').toString()
 );
@@ -60,8 +59,8 @@ const dist = ([ax, ay], [bx, by]) => Math.abs(ax - bx) + Math.abs(ay - by);
 const distToLaser = (p) => dist(laserPos, p)
 
 const nearestByAngle = pipe(
-  asteroids.filter(mkNe(laserPos)),
-  groupBy(mkCalcAngle(laserPos)),
+  asteroids.filter(a => ne(laserPos, a)),
+  groupBy(a => calcAngle(laserPos, a)),
   mapValues(ps => ps.sort((p1, p2) => distToLaser(p1) - distToLaser(p2))),
   intoMap(),
 );
@@ -80,23 +79,28 @@ pipe(
   p => console.log(p[0] * 100 + p[1])
 );
 
-// const nearestByAngle2 = pipe(
-//   asteroids.filter(mkNe(laserPos)),
-//   groupBy(mkCalcAngle(laserPos)),
-//   mapValues(ps => ps.sort((p1, p2) => distToLaser(p1) - distToLaser(p2))),
-//   intoMap(),
-// );
+// Old solution
+// {
+//   const nearestByAngle2 = pipe(asteroids, 
+//     filter((a) => ne(laserPos, a)),
+//     groupBy(a => calcAngle(laserPos, a)),
+//   );
 
-// let nrVaporized = 0;
-// for (const angle of pipe(cycle(anglesClockwise), skipWhile(a => a < -Math.PI/2))) {
-//   const nearest = nearestByAngle2.get(angle);
-//   if (nearest.length) {
-//     const vaporized = nearest.shift();
-//     nrVaporized++;
-//     if (env.DEBUG) console.log(`Vaporized asteroid ${pad(3)(nrVaporized)} [${vaporized.map(pad(2))}] at π ${angle >= 0 ? ' ' : ''}${angle}`);
-//     if (nrVaporized === 200 || nrVaporized === asteroids.length - 2) {
-//       console.log(vaporized[0] * 100 + vaporized[1]);
-//       break;
-//     };
+//   for (const angle of nearestByAngle2.keys()) {
+//     nearestByAngle2.get(angle).sort((p1, p2) => distToLaser(p1) - distToLaser(p2));
+//   }
+
+//   let nrVaporized = 0;
+//   for (const angle of pipe(cycle(anglesClockwise), skipWhile(a => a < -Math.PI/2))) {
+//     const nearest = nearestByAngle2.get(angle);
+//     if (nearest.length) {
+//       const vaporized = nearest.shift();
+//       nrVaporized++;
+//       if (env.DEBUG) console.log(`Vaporized asteroid ${pad(3)(nrVaporized)} [${vaporized.map(pad(2))}] at π ${angle >= 0 ? ' ' : ''}${angle}`);
+//       if (nrVaporized === 200 || nrVaporized === asteroids.length - 2) {
+//         console.log(vaporized[0] * 100 + vaporized[1]);
+//         break;
+//       };
+//     }
 //   }
 // }
