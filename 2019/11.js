@@ -18,7 +18,7 @@ const input = (await read(Deno.stdin))
   .split(',')
   .map(Number);
 
-const robot = run(input, constantly(1));
+const robot = run(input, 1);
 const painted = Map([[tuple([0, 0]), '#']]).asMutable();
 let curr = [0, 0];
 let dir = 0;
@@ -35,7 +35,7 @@ const move = (curr, dir) => {
 
 for (let i = 0; i < Number.POSITIVE_INFINITY; i++) {
   const col = painted.get(tuple(curr));
-  const { value: v1, done: d1 } = robot.next(col === '#' ? constantly(1) : constantly(0));
+  const { value: v1, done: d1 } = robot.next(col === '#' ? 1 : 0);
   if (d1) break;
   const { value: v2, done: d2 } = robot.next();
   if (d2) break;
