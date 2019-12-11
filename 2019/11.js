@@ -5,7 +5,7 @@ import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, map
 import { Array2D } from '../util/array2d.ts';
 import { add } from '../util/vec2d.ts';
 import { wrap } from '../util/other.ts';
-import { ValMap } from '../util/values.js';
+import { ValMap } from '../util/values.ts';
 
 const env = Deno.env();
 

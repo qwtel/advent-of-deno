@@ -1,9 +1,9 @@
-import { ValMap } from "./values.js";
+import { ValMap } from "./values.ts";
 import { pipe, unzip2, minMax } from "./lilit.ts";
 
 export type Point = [number, number];
 export type Bounds = [[number, number], [number, number]];
-// type PointMap<X> = ValMap<Point, X>
+type PointMap<X> = ValMap<Point, X>
 
 export class Array2D<X> {
     private _bounds: Bounds;
@@ -23,7 +23,7 @@ export class Array2D<X> {
     }
 
     // TODO: types for point map
-    static fromPointMap<X>(pointMap: ValMap, fill: X) {
+    static fromPointMap<X>(pointMap: PointMap<X>, fill: X) {
         const a = pipe(
             pointMap.keys() as IterableIterator<Point>,
             unzip2(),
