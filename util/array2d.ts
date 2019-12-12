@@ -3,7 +3,7 @@ import { pipe, unzip2, minMax } from "./lilit.ts";
 
 export type Point = [number, number];
 export type Bounds = [[number, number], [number, number]];
-type PointMap<X> = ValMap<Point, X>
+type PointMap<X> = ValMap<Point, X>;
 
 export class Array2D<X> {
     private _bounds: Bounds;
