@@ -1,15 +1,14 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';
-import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap, last, take, inspect, flat, some, forEach, skip, first, mapKeys, constantly, unzip2, partition, minMax } from '../util/lilit.ts';
 import { Array2D } from '../util/array2d.ts';
 import { add } from '../util/vec2d.ts';
 import { wrap } from '../util/other.ts';
 import { ValMap } from '../util/values.ts';
-
-const env = Deno.env();
-
 import { run } from './05_run.js';
+(async () => {
+
+// const env = Deno.env();
 
 const input = (await read())
   .trim()
@@ -64,3 +63,5 @@ const painted = solve([[[0, 0], '#']]);
 
 const arr2d = Array2D.fromPointMap(painted, '.');
 console.log('' + arr2d.transpose().rotateCCW())
+
+})();

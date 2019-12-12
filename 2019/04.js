@@ -2,10 +2,10 @@
 
 import { read } from '../util/aoc.ts';
 import { pipe, length, groupedUntilChanged, some, unique, filter, range, map, pairwise, every, share } from '../util/lilit.ts';
+(async () => {
 
 // const env = Deno.env();
 
-// @ts-ignore
 const [, from, to] = (await read(Deno.stdin))
   .trim()
   .match(/(\d{6})-(\d{6})/)
@@ -33,3 +33,5 @@ pipe(
   length(),
   console.log,
 );
+
+})();

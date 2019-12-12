@@ -3,10 +3,10 @@
 import { read } from '../util/aoc.ts';
 import { pipe, map, grouped, forEach, product2, range, find } from '../util/lilit.ts'
 import { pad } from '../util/other.ts';
+(async () => {
 
 const env = Deno.env()
 
-// @ts-ignore
 const input = (await read(Deno.stdin))
   .trim()
   .split(',')
@@ -52,3 +52,5 @@ const [, noun, verb] = pipe(
 );
 
 console.log(100 * noun + verb);
+
+})();

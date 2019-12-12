@@ -1,10 +1,10 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, zipMap, range, grouped, minByKey, zip2, intoArray } from '../util/lilit.ts';
+import { pipe, zipMap, range, grouped, minByKey, zip2, toArray } from '../util/lilit.ts';
 import { Array2D } from '../util/array2d.ts';
+(async () => {
 
-// @ts-ignore
 const input = (await read(Deno.stdin))
   .trim()
   .split('')
@@ -16,7 +16,7 @@ const height = 6;
 const layers = pipe(
   input,
   grouped(width * height),
-  intoArray(),
+  toArray(),
 )
 
 // 1
@@ -41,3 +41,5 @@ for (const layer of layers) {
   }
 }
 console.log(arr2d.map(x => x === 1 ? '+' : ' ').toString());
+
+})();

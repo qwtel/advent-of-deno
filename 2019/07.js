@@ -1,11 +1,10 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
-import { read } from '../util/aoc.ts';;
+import { read } from '../util/aoc.ts';
 import { pipe, map, range, permutations, max } from '../util/lilit.ts';
-
 import { run } from './05_run.js';
+(async () => {
 
-// @ts-ignore
 const input = (await read(Deno.stdin))
   .trim()
   .split(',')
@@ -63,3 +62,5 @@ pipe(
   max(),
   console.log,
 );
+
+})();

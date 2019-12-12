@@ -1,14 +1,14 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, intoArray, intoMap, last, take, inspect, flat, some, forEach } from '../util/lilit.ts';
+import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, toArray, toMap, last, take, inspect, flat, some } from '../util/lilit.ts';
 import { Array2D } from '../util/array2d.ts';
 import { eq, ne, sub } from '../util/vec2d.ts';
 import { pad } from '../util/other.ts';
+(async () => {
 
 const env = Deno.env();
 
-// @ts-ignore
 const input = (await read(Deno.stdin))
   .split('\n')
   .map(l => l.split(''));
@@ -19,7 +19,7 @@ const asteroids = pipe(
   arr2d.entries(),
   filter(([, v]) => v === '#'),
   map(([p]) => p),
-  intoArray(),
+  toArray(),
 );
 
 // 1
@@ -62,7 +62,7 @@ const nearestByAngle = pipe(
   asteroids.filter(a => ne(laserPos, a)),
   groupBy(a => calcAngle(laserPos, a)),
   mapValues(ps => ps.sort((p1, p2) => distToLaser(p1) - distToLaser(p2))),
-  intoMap(),
+  toMap(),
 );
 
 const anglesClockwise = [...nearestByAngle.keys()].sort((a, b) => a - b);
@@ -70,9 +70,8 @@ const anglesClockwise = [...nearestByAngle.keys()].sort((a, b) => a - b);
 pipe(
   cycle(anglesClockwise),
   skipWhile(a => a < -Math.PI/2),
-  map(angle => nearestByAngle.get(angle)),
-  filter(nearest => nearest.length),
-  map(nearest => nearest.shift()),
+  map(angle => nearestByAngle.get(angle).shift()),
+  filter(vaporized => vaporized != null),
   env.DEBUG && inspect(print),
   take(Math.min(200, asteroids.length - 2)),
   last(),
@@ -104,3 +103,5 @@ pipe(
 //     }
 //   }
 // }
+
+})();

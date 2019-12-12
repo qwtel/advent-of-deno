@@ -156,24 +156,30 @@ export function takeLast<X>(n: number) {
   };
 }
 
-export function first<X>(fallback: X) {
+export function first<X>(fallback?: X) {
   return function(xs: Iterable<X>): X {
     const it = iterator(xs);
-    const res = it.next();
-    return res.value || fallback;
+    return it.next().value || fallback;
   }
 }
 
-export function second<X>(fallback: X) {
+export function second<X>(fallback?: X) {
   return function(xs: Iterable<X>): X {
     const it = iterator(xs);
     it.next();
-    const res = it.next();
-    return res.value || fallback;
+    return it.next().value || fallback;
   }
 }
 
-export function last<X>(fallback: X) {
+export function nth<X>(n: number, fallback?: X) {
+  return function(xs: Iterable<X>): X {
+    const it = iterator(xs);
+    for (let i = 0; i < n - 1; i++) it.next();
+    return it.next().value || fallback;
+  }
+}
+
+export function last<X>(fallback?: X) {
   return function(xs: Iterable<X>): X {
     let res: X;
     for (const x of xs) res = x;
@@ -601,18 +607,18 @@ export function uniqueSorted<X>(comp: (a: X, b: X) => boolean = (a, b) => a === 
   };
 }
 
-export function intoArray<X>() {
+export function toArray<X>() {
   return (xs: Iterable<X>) => [...xs];
 }
 
-export { intoArray as share }
+export { toArray as share }
 
-export function intoSet<X>() {
-  return (xs: Iterable<X>) => new Set(xs);
+export function toSet<X>(SetLike: typeof Set = Set) {
+  return (xs: Iterable<X>) => new SetLike(xs);
 }
 
-export function intoMap<K, V>() {
-  return (xs: Iterable<[K, V]>) => new Map(xs);
+export function toMap<K, V>(MapLike: typeof Map = Map) {
+  return (xs: Iterable<[K, V]>) => new MapLike(xs);
 }
 
 // CONSTRUCTORS

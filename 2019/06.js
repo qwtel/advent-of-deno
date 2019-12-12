@@ -2,14 +2,14 @@
 
 import { read } from '../util/aoc.ts';
 import { pipe, map, sum } from '../util/lilit.ts';
-import { makeGraph, bfs } from '../util/graph.ts'
+import { makeGraph, bfs } from '../util/graph.ts';
+(async () => {
 
-// @ts-ignore
-const input = await read(Deno.stdin);
+const input = (await read(Deno.stdin))
+  .trim()
+  .split('\n');
 
 const edges = input
-  .trim()
-  .split('\n')
   .map(line => line.match(/([A-Z0-9]+)\)([A-Z0-9]+)/))
   .map(([, a, b]) => [a, b]);
 
@@ -27,3 +27,5 @@ pipe(
 
 // 2
 console.log(bfs({ vertices, dirs, deps }, 'YOU', 'SAN').length - 2)
+
+})();
