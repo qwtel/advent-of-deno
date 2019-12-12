@@ -1,7 +1,17 @@
 import { pipe, map, replaceWhen } from './lilit.ts';
 
-// IMPORTANT: Patching the global console object so that methods can be passed to other functions.
-for (const key in console) if (typeof console[key] === 'function') console[key] = console[key].bind(console);
+const bindAllFunctions = (ns: Object) => { for (const key in ns) if (typeof ns[key] === 'function') ns[key] = ns[key].bind(ns); }
+
+// IMPORTANT: Patching the global console/Math/JSON object so that methods can be passed to other functions.
+bindAllFunctions(console);
+bindAllFunctions(Math);
+// TODO: others?
+
+export function print(...args: any[]) {
+    for (const obj of args) {
+        console.dir(obj, { depth: Number.POSITIVE_INFINITY });
+    }
+}
 
 /**
  * Helper function to read the standard input (or any other stream) 
@@ -18,7 +28,7 @@ export async function read(file: Deno.File = Deno.stdin): Promise<string> {
  * from the argument list with fallback values. Mind the empty space between flag and number!
  * E.g. `args(['-w', '-d'], [5, 60])`
  */
-export function args(flags: string[], defaults: number[]): Iterable<number> {
+export function args(flags: string[], defaults: number[]): IterableIterator<number> {
     return pipe(
         flags,
         map(flag => Deno.args.findIndex((arg: string) => arg === flag)),

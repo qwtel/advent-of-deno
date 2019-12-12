@@ -75,6 +75,35 @@ export const wrap = (arr = []) => new Proxy(arr, {
     },
 });
 
+function _lcm(a: number, b: number): number {
+  if (a == 0 || b == 0) {
+      return 0;
+  }
+  return (a * b) / _gcd(a, b);
+}
+
+
+function _gcd(a: number, b: number): number {
+  if (a < 1 || b < 1) {
+    throw Error("a or b is less than 1");
+  }
+  let remainder = 0;
+  do {
+    remainder = a % b;
+    a = b; 
+    b = remainder;
+  } while (b !== 0);
+  return a;
+}
+
+export function lcm(a: number, ...bs: number[]) {
+    return bs.reduce(_lcm, a);
+}
+
+export function gcd(a: number, ...bs: number[]) {
+    return bs.reduce(_gcd, a);
+}
+
 export const add = (a: number, b: number): number => a + b;
 export const sub = (a: number, b: number): number => a - b;
 export const mul = (a: number, b: number): number => a * b;

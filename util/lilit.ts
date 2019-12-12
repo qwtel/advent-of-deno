@@ -20,6 +20,18 @@ export function zipMap<X, Y>(f: (x: X) => Y) {
   };
 }
 
+export function zipWith<X, Y>(ys: Iterable<Y>) {
+  return (xs: Iterable<X>) => zip2(xs, ys);
+}
+
+export function zipWith2<X, Y, Z>(ys: Iterable<Y>, zs: Iterable<Z>) {
+  return (xs: Iterable<X>) => zip3(xs, ys, zs);
+}
+
+export function zipWithAll(...yss: Iterable<{}>[]) {
+  return (xs: Iterable<{}>) => zip(xs, ...yss);
+}
+
 // Similar to `zipMap`, but expects 2-tuples as input.
 export function expand2<X1, X2, Y>(f: (x: [X1, X2]) => Y) {
   return function*(xs: Iterable<[X1, X2]>): IterableIterator<[X1, X2, Y]> {
@@ -52,7 +64,7 @@ export function tap<X>(f: (x: X) => any) {
 
 export { tap as inspect }
 
-export function forEach<X>(f: (x: X) => any) {
+export function forEach<X>(f: (x: X) => any = () => {}) {
   return function(xs: Iterable<X>): void {
     for (const x of xs) f(x);
   };
@@ -286,9 +298,7 @@ export function unzip2<X, Y>() {
 }
 
 export function unzip3<X, Y, Z>() {
-  return function(
-    xs: Iterable<[X, Y, Z]>,
-  ): [IterableIterator<X>, IterableIterator<Y>, IterableIterator<Z>] {
+  return function(xs: Iterable<[X, Y, Z]>): [IterableIterator<X>, IterableIterator<Y>, IterableIterator<Z>] {
     const [xs1, xs2, xs3] = teeN(xs, 3);
     return [pluck<X>(0)(xs1), pluck<Y>(1)(xs2), pluck<Z>(2)(xs3)];
   };
