@@ -1,9 +1,10 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
-import { fromJS as tuple, Set as ISet, List, is } from 'immutable'
+import { fromJS, Set as ISet, List as IList } from 'immutable'
 import { read } from '../util/aoc.ts';
-import { pipe, min, flatMap, map, scan, repeat, takeWhile, sum, count, share } from '../util/lilit.ts'
-import { add } from '../util/vec2d.ts';
+import { pipe, min, flatMap, map, scan, repeat, takeWhile, sum, count, share, zip2, range } from '../util/lilit.ts'
+import { ne, add } from '../util/vec2d.ts';
+import { ValMap } from '../util/values.ts';
 (async () => {
 
 const intersect = (...xss) => ISet.prototype.intersect.call(...map(ISet)(xss));
@@ -29,8 +30,8 @@ const paths = pipe(
     turns,
     flatMap(([dir, n]) => repeat(dirMap[dir], n)),
     scan(add, [0, 0]),
-    map(tuple),
-    List,
+    map(fromJS),
+    IList,
   )),
   share(),
 );
@@ -48,7 +49,7 @@ pipe(
 // 2
 const signalDelay = (path, to) => 1 + pipe(
   path,
-  takeWhile(p => !is(p, to)),
+  takeWhile(p => ne(p, to)),
   count(),
 );
 
@@ -64,35 +65,15 @@ pipe(
 );
 
 // Old solution
-// class SparseArray2D {
-//   constructor() {
-//     this.map = new Map().asMutable();
-//   }
-
-//   getSet(p, v) {
-//     const key = tuple(p);
-//     const ov = this.map.get(key);
-//     this.map.set(key, v);
-//     return ov;
-//   }
-
-//   getSetIfEmpty(p, v) {
-//     const key = tuple(p);
-//     const ov = this.map.get(key);
-//     if (ov == null) this.map.set(key, v);
-//     return ov;
-//   }
-// }
-//
-// function* crossings(input) {
-//   const arr2d = new SparseArray2D()
+// function* crossings(input, f) {
+//   const arr2d = new ValMap()
 //   for (const [wire, color] of zip2(input, range(1))) {
 //     let p = [0, 0];
 //     for (const [d, n] of wire) {
-//       const dp = dirMap[d];
 //       for (let i = 0; i < n; i++) {
-//         p = pointAdd(p, dp);
-//         const ov = arr2d.getSet(p, color);
+//         p = add(p, dirMap[d]);
+//         const ov = arr2d.get(p);
+//         arr2d.set(p, color);
 //         if (ov && ov !== color) {
 //           yield manhattanDist([0, 0], p);
 //         }
@@ -100,20 +81,20 @@ pipe(
 //     }
 //   }
 // }
-//
+
 // console.log(pipe(crossings(input), min()));
-//
+
 // function* crossings2(input) {
-//   const arr2d = new SparseArray2D();
+//   const arr2d = new ValMap();
 //   for (const [wire, color] of zip2(input, range(1))) {
 //     let p = [0, 0];
 //     let t = 0;
 //     for (const [d, n] of wire) {
-//       const dp = dirMap[d];
 //       for (let i = 0; i < n; i++) {
-//         p = pointAdd(p, dp);
+//         p = add(p, dirMap[d]);
 //         t++;
-//         const [oc, ot] = arr2d.getSetIfEmpty(p, [color, t]) || [];
+//         const [oc, ot] = arr2d.get(p) || [];
+//         if (!oc) arr2d.set(p, [color, t]);
 //         if (oc && oc !== color) {
 //           yield t + ot;
 //         }
@@ -121,7 +102,7 @@ pipe(
 //     }
 //   }
 // }
-//
+
 // console.log(pipe(crossings2(input), min()));
 
 })();
