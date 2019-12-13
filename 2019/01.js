@@ -19,6 +19,18 @@ pipe(
   console.log,
 );
 
+pipe(
+  input,
+  map((x) => pipe(
+    constantly(),
+    scan(calcFuel, x),
+    takeWhile(x => x > 0),
+    sum(),
+  )),
+  sum(),
+  console.log,
+);
+
 // "Imperative" solution
 // const calcFuel2 = (x) => pipe(x,
 //   function* (x) {
@@ -30,19 +42,5 @@ pipe(
 //   },
 //   sum()
 // )
-
-const calcFuel2 = (x) => pipe(
-  constantly(),
-  scan(calcFuel, x),
-  takeWhile(x => x > 0),
-  sum(),
-);
-
-pipe(
-  input,
-  map(calcFuel2),
-  sum(),
-  console.log,
-);
 
 })();
