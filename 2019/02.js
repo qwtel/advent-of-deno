@@ -1,17 +1,17 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';
-import { skip, pipe, product2, range, zipMap, find } from '../util/lilit.ts'
+import { pipe, product2, range, zipMap, find } from '../util/lilit.ts'
 import { run } from './intcode.js';
 (async () => {
 
 
-const input = (await read(Deno.stdin))
+const [first,,, ...rest] = (await read(Deno.stdin))
   .trim()
   .split(',')
   .map(Number);
 
-const runWith = (noun, verb) => run([input[0], noun, verb, ...skip(3)(input)]).next().value;
+const runWith = (noun, verb) => run([first, noun, verb, ...rest]).next().value;
 
 // 1
 console.log(runWith(12, 2));
