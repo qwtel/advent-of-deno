@@ -26,30 +26,22 @@ const move = (curr, dir) => {
   }
 }
 
-function solve(init = [], steps = Number.POSITIVE_INFINITY) {
+function solve(init = []) {
   const painted = new ValMap(init);
   let curr = [0, 0];
   let dir = 0;
 
   const robot = run(input, painted.get(curr) === '#' ? 1 : 0);
 
-  for (let i = 0; i < steps; i++) {
+  for (let i = 0;; i++) {
     const col = painted.get(curr);
     const { value: v1 } = robot.next(col === '#' ? 1 : 0);
     const { value: v2, done } = robot.next();
     if (done) break;
 
-    if (v1 === 0) {
-      painted.set(curr, '.');
-    } else if (v1 === 1) {
-      painted.set(curr, '#');
-    }
-
-    if (v2 === 0) {
-      curr = move(curr, dirs[--dir]);
-    } else if (v2 === 1) {
-      curr = move(curr, dirs[++dir]);
-    }
+    painted.set(curr, v1 === 1 ? '#' : '.');
+    dir += v2 === 0 ? -1 : v2 === 1 ? 1 : 0;
+    curr = move(curr, dirs[dir]);
   }
 
   return painted;

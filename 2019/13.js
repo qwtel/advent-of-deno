@@ -1,10 +1,9 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
-import { read, print } from '../util/aoc.ts';
+import { read } from '../util/aoc.ts';
 import { Array2D } from '../util/array2d.ts';
-import { wrap, add, arrayCompare, lcm } from '../util/other.ts';
-import { ValMap, ValSet } from '../util/values.ts';
-import { pipe, filter, map, toArray, combinations, forEach, zipMap, mapSecond, reduce, constantly, zip, inspect, sum, take, last, find, second, every, range, pluck, first, unzip, unzip3, scan, zip3, nth, subscribe, unzip2, tap, takeWhile, zip2, distinct, distinctUntilChanged, share, zipWith, reducutions, grouped, count, skip, pairwise } from '../util/lilit.ts';
+import { ValMap } from '../util/values.ts';
+import { pipe, filter, map, constantly, grouped, count } from '../util/lilit.ts';
 import { run } from './13_run.js';
 (async () => {
 
@@ -16,11 +15,12 @@ const input = (await read())
   .map(Number);
 
 // 1
-const screen = new ValMap();
-for (const [x, y, c] of pipe(run(input), grouped(3))) {
-  screen.set([x, y], c);
-}
-pipe(screen.values(), filter(c => c === 2), count(), console.log)
+const screen = new ValMap(pipe(
+  run(input),
+  grouped(3),
+  map(([x, y, c]) => [[x, y], c]),
+));
+pipe(screen.values(), filter(c => c === 2), count(), console.log);
 
 // 2
 const frameBuffer = Array2D.fromPointMap(screen);
