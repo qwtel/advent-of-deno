@@ -3,7 +3,7 @@
 import immutable, { fromJS } from 'immutable';
 import { read } from '../util/aoc.ts';
 import { lcm } from '../util/other.ts';
-import { pipe, filter, map, toArray, constantly, zip, sum, take, last, range, pluck, unzip3, scan, zip3, unzip2, findIndex } from '../util/lilit.ts';
+import { pipe, map, toArray, constantly, sum, take, last, pluck, unzip3, scan, zip2, zip3, unzip2, findIndex } from '../util/lilit.ts';
 (async () => {
 
 const abs = (vec) => pipe(vec, map(Math.abs), sum());
@@ -19,16 +19,14 @@ const input = (await read())
 
 const [xs, ys, zs] = pipe(input, unzip3(), map(toArray()));
 
-
 function solve(positionsOnAxis) {
-  const initialPosVelTuples = [...zip(positionsOnAxis, constantly(0))];
+  const initialPosVelTuples = [...zip2(positionsOnAxis, constantly(0))];
   return pipe(
-    range(), 
+    constantly(), 
     scan(posVelTuples => posVelTuples.map(([pos, vel]) => {
       const vel2 = pipe(
         posVelTuples,
         pluck(0),
-        filter(p => pos !== p),
         map(p => Math.sign(p - pos)),
         sum(vel),
       );
@@ -48,7 +46,7 @@ pipe(
   )),
   unzip2(),
   ([posXYZ, velXYZ]) => [zip3(...posXYZ), zip3(...velXYZ)],
-  ([positions, velocities]) => zip(map(abs)(positions), map(abs)(velocities)),
+  ([positions, velocities]) => zip2(map(abs)(positions), map(abs)(velocities)),
   map(([pot, kin]) => pot * kin),
   sum(),
   console.log,
