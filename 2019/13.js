@@ -4,7 +4,7 @@ import { read } from '../util/aoc.ts';
 import { Array2D } from '../util/array2d.ts';
 import { ValMap } from '../util/values.ts';
 import { pipe, filter, map, constantly, grouped, count } from '../util/lilit.ts';
-import { run } from './13_run.js';
+import { run } from './intcode.js';
 (async () => {
 
 const env = Deno.env();

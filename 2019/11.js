@@ -5,7 +5,7 @@ import { Array2D } from '../util/array2d.ts';
 import { add } from '../util/vec2d.ts';
 import { wrap } from '../util/other.ts';
 import { ValMap } from '../util/values.ts';
-import { run } from './05_run.js';
+import { run } from './intcode.js';
 (async () => {
 
 // const env = Deno.env();
@@ -31,11 +31,11 @@ function solve(init = []) {
   let curr = [0, 0];
   let dir = 0;
 
-  const robot = run(input, painted.get(curr) === '#' ? 1 : 0);
+  const robot = run(input, [painted.get(curr) === '#' ? 1 : 0]);
 
   for (;;) {
     const col = painted.get(curr);
-    const { value: v1 } = robot.next(col === '#' ? 1 : 0);
+    const { value: v1 } = robot.next([col === '#' ? 1 : 0]);
     const { value: v2, done } = robot.next();
     if (done) break;
 

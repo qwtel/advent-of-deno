@@ -15,22 +15,22 @@ const JUMP_IF_FALSE = 6;
 const LESS_THAN = 7;
 const EQUALS = 8;
 
-export function* run(initialMemory, ...initialInputs) {
+export function* run(initialMemory, initialInputs = []) {
   const mem = [...initialMemory].map(BigInt);
-  const inputs = initialInputs.map(BigInt);
+  let inputs = initialInputs[Symbol.iterator]();
 
   let pc = 0n;
   let rb = 0n;
 
   while (true) {
-    if (env.DEBUG) print(mem);
+    if (env.DEBUG_INT) print(mem);
 
     const inst = Number(mem[pc++]);
     const opcode = mod(inst, 100);
 
     if (opcode === 99) break;
 
-    if (env.DEBUG) console.log('---');
+    if (env.DEBUG_INT) console.log('---');
 
     const getParam = (nr) => {
       const u = 100 * 10 ** nr;
@@ -72,13 +72,14 @@ export function* run(initialMemory, ...initialInputs) {
         break;
       }
       case 3: {
-        setParam(1, inputs.shift());
+        const a = BigInt(inputs.next().value)
+        setParam(1, a);
         break;
       }
       case 4: {
         const a = getParam(1);
         const x = yield Number(a);
-        if (x != null) inputs.push(BigInt(x));
+        if (x) inputs = x[Symbol.iterator]();
         break;
       }
       case JUMP_IF_TRUE: {
