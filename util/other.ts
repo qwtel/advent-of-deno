@@ -104,6 +104,18 @@ export function gcd(a: number, ...bs: number[]) {
     return bs.reduce(_gcd, a);
 }
 
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive).
+ * The value is no lower than min (or the next integer greater than min
+ * if min isn't an integer) and no greater than max (or the next integer
+ * lower than max if max isn't an integer).
+ * Using Math.round() will give you a non-uniform distribution!
+ * @see https://stackoverflow.com/a/1527820/870615
+ */
+export function getRandomInteger(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 export const add = (a: number, b: number): number => a + b;
 export const sub = (a: number, b: number): number => a - b;
 export const mul = (a: number, b: number): number => a * b;
