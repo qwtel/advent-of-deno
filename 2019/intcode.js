@@ -22,7 +22,7 @@ export function* run(initialMemory, initialInputs = []) {
   let pc = 0n;
   let rb = 0n;
 
-  while (true) {
+  computer: while (true) {
     if (env.DEBUG_INT) print(mem);
 
     const inst = Number(mem[pc++]);
@@ -72,8 +72,9 @@ export function* run(initialMemory, initialInputs = []) {
         break;
       }
       case 3: {
-        const a = BigInt(inputs.next().value)
-        setParam(1, a);
+        const next = inputs.next().value;
+        if (next == null) break computer; 
+        setParam(1, BigInt(next));
         break;
       }
       case 4: {

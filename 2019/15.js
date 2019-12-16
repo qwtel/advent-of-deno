@@ -2,11 +2,11 @@
 
 import { read, print } from '../util/aoc.ts';
 import { Array2D } from '../util/array2d.ts';
-import { add, eq } from '../util/vec2d.ts';
+import { add, addTo, eq, sub, mkNe as notEq } from '../util/vec2d.ts';
 import { ValMap, ValSet } from '../util/values.ts';
-import { pipe, filter, map, constantly, grouped, count, forEach, filterMap } from '../util/lilit.ts';
+import { pipe, filter, map, concat2, first } from '../util/lilit.ts';
+import { notIn, last, notEmpty } from '../util/other.ts'
 import { run } from './intcode.js';
-import { wrap, getRandomInteger } from '../util/other.ts';
 (async () => {
 
 const env = Deno.env();
@@ -16,7 +16,10 @@ const input = (await read())
   .split(',')
   .map(Number);
 
-// 1
+function* pop(path) { 
+  while (path.length > 0) yield path.pop();
+}
+
 const [N, S, W, E] = [1, 2, 3, 4]
 const dirMap = {
   [N]: [0, -1],
@@ -24,73 +27,84 @@ const dirMap = {
   [W]: [-1, 0],
   [E]: [1, 0],
 }
+const dirMapRev = new ValMap(Object.entries(dirMap).map(([k, v]) => [v, k]))
 
-let dir = getRandomInteger(1, 4);
-const q = [dir]
-const droid = run(input, q)
-let curr = [0, 0];
+const n4 =(point) => Object.values(dirMap).map(addTo(point));
+
+let dir = 1, curr = [0, 0], next, goal;
+const channel = [dir];
+const droid = run(input, channel);
 const world = new ValMap([[curr, '.']]);
-
-outer: for (;;) {
-  const { value } = droid.next();
-
-  switch (value) {
-    case 0: {
-      world.set(add(curr, dirMap[dir]), '#');
-      break;
-    }
-    case 1: {
-      curr = add(curr, dirMap[dir]);
-      world.set(curr, '.')
-      break;
-    }
-    case 2: {
-      curr = add(curr, dirMap[dir]);
-      break outer;
-    }
-    default: {
-      throw Error(value)
-    }
-  }
-  dir = getRandomInteger(1, 4);
-  q.push(dir)
-}
-
-debug(curr);
+const path = [curr];
 
 function debug(curr) {
   console.log('' + Array2D.fromPointMap(world, ' ').map((x, p) => eq(p, curr) ? 'D' : x));
 }
 
-function neighbors4(grid, p) {
-  return pipe(
-    [[0, -1], [1, 0], [-1, 0], [0, 1]],
-    map(_ => add(p, _)),
-    filter(_ => grid.isInside(_)),
+for (const response of droid) {
+  switch (response) {
+    case 0:
+      world.set(add(curr, dirMap[dir]), '#');
+      break;
+    case 2: 
+      goal = add(curr, dirMap[dir]);
+      // no break
+    case 1:
+      curr = add(curr, dirMap[dir]);
+      world.set(curr, '.');
+      path.push(curr);
+      break;
+    default: throw Error(response)
+  }
+
+  const candidates = concat2(
+    pipe(n4(curr), filter(notIn(world))), // neighbors that we haven't explored
+    pipe(pop(path), filter(notEq(curr))), // else backtrack + deal with weird edge case
   );
+  if (next = pipe(candidates, first())) {
+    dir = dirMapRev.get(sub(next, curr));
+    channel.push(dir);
+  }
+
+  if (env.DEBUG) debug(curr);
 }
 
 function bfs(world, start, goal) {
-  const queue = [wrap([start])];
+  let i = 0;
+  const qs = [[[start]], []];
   const seen = new ValSet([start]);
-  while (queue.length) {
-    const path = queue.shift();
-    for (const n of neighbors4(world, path[-1])) {
-      const v = world.get(n);
+
+  while (qs.some(notEmpty)) {
+    const q = qs[i % 2];
+    const qNext = qs[(i + 1) % 2];
+
+    const path = q.shift();
+    for (const p of n4(last(path))) {
+      const v = world.get(p);
       if (v === goal) {
-        return [...path, n];
-      } else if (v === '.' && !seen.has(n)) {
-        queue.push(wrap([...path, n]));
-        seen.add(n);
+        return [...path, p];
+      } else if (v === '.' && !seen.has(p)) {
+        qNext.push([...path, p]);
+        seen.add(p);
       }
     }
+
+    if (q.length === 0) i++;
   }
+
+  // undo last ++
+  return i - 1;
 }
 
-const arr2d = Array2D.fromPointMap(world, ' ');
-arr2d.set([0, 0], 'X')
-const path = bfs(arr2d, curr, 'X')
-console.log(path.length - 1)
+// 1
+world.set(goal, 'X');
+const shortest = bfs(world, [0, 0], 'X');
+if (env.DEBUG) console.log(shortest);
+console.log(shortest.length - 1);
+
+// 2
+world.set(goal, '.');
+console.log(bfs(world, goal));
 
 
 })();

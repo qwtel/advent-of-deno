@@ -647,6 +647,11 @@ export function* concat<X>(...xss: Iterable<X>[]): IterableIterator<X> {
   for (const xs of xss) for (const x of xs) yield x;
 }
 
+export function* concat2<X, Y>(xs: Iterable<X>, ys: Iterable<Y>): IterableIterator<X | Y> {
+  for (const x of xs) yield x;
+  for (const y of ys) yield y;
+}
+
 export { concat as chain }
 
 export function* zip2<X, Y>(xs: Iterable<X>, ys: Iterable<Y>): IterableIterator<[X, Y]> {

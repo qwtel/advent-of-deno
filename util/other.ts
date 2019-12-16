@@ -116,6 +116,11 @@ export function getRandomInteger(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+export const isIn = <X>(setLike: { has: (x: X) => boolean }) => (x: X) => setLike.has(x);
+export const notIn = <X>(setLike: { has: (x: X) => boolean }) => (x: X) => !setLike.has(x);
+export const last = (arrayLike: { length: number }) => arrayLike[arrayLike.length - 1];
+export const notEmpty = (arrayLike: { length: number }) =>  arrayLike.length > 0;
+
 export const add = (a: number, b: number): number => a + b;
 export const sub = (a: number, b: number): number => a - b;
 export const mul = (a: number, b: number): number => a * b;
