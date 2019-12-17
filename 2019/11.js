@@ -33,7 +33,7 @@ function solve(init = []) {
 
   const robot = run(input, [painted.get(curr) === '#' ? 1 : 0]);
 
-  for (;;) {
+  while (true) {
     const col = painted.get(curr);
     const { value: v1 } = robot.next([col === '#' ? 1 : 0]);
     const { value: v2, done } = robot.next();

@@ -80,18 +80,20 @@ pipe(
 
 // Old solution
 // {
-//   const nearestByAngle2 = pipe(asteroids, 
+//   const nearestByAngle = pipe(asteroids, 
 //     filter((a) => ne(laserPos, a)),
 //     groupBy(a => calcAngle(laserPos, a)),
 //   );
 
-//   for (const angle of nearestByAngle2.keys()) {
-//     nearestByAngle2.get(angle).sort((p1, p2) => distToLaser(p1) - distToLaser(p2));
+//   for (const angle of nearestByAngle.keys()) {
+//     nearestByAngle.get(angle).sort((p1, p2) => distToLaser(p1) - distToLaser(p2));
 //   }
+
+//   const anglesClockwise = [...nearestByAngle.keys()].sort((a, b) => a - b);
 
 //   let nrVaporized = 0;
 //   for (const angle of pipe(cycle(anglesClockwise), skipWhile(a => a < -Math.PI/2))) {
-//     const nearest = nearestByAngle2.get(angle);
+//     const nearest = nearestByAngle.get(angle);
 //     if (nearest.length) {
 //       const vaporized = nearest.shift();
 //       nrVaporized++;

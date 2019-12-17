@@ -21,15 +21,11 @@ function* pop(path) {
 }
 
 const [N, S, W, E] = [1, 2, 3, 4]
-const dirMap = {
-  [N]: [0, -1],
-  [S]: [0, 1],
-  [W]: [-1, 0],
-  [E]: [1, 0],
-}
+const dirMap = { [N]: [0, -1], [S]: [0, 1], [W]: [-1, 0], [E]: [1, 0] }
 const dirMapRev = new ValMap(Object.entries(dirMap).map(([k, v]) => [v, k]))
 
-const n4 =(point) => Object.values(dirMap).map(addTo(point));
+// Returns the 4 neighbors of point
+const n4 = (point) => Object.values(dirMap).map(addTo(point));
 
 let dir = 1, curr = [0, 0], next, goal;
 const channel = [dir];
@@ -43,9 +39,6 @@ function debug(curr) {
 
 for (const response of droid) {
   switch (response) {
-    case 0:
-      world.set(add(curr, dirMap[dir]), '#');
-      break;
     case 2: 
       goal = add(curr, dirMap[dir]);
       // no break
@@ -54,7 +47,9 @@ for (const response of droid) {
       world.set(curr, '.');
       path.push(curr);
       break;
-    default: throw Error(response)
+    case 0:
+      world.set(add(curr, dirMap[dir]), '#');
+      break;
   }
 
   const candidates = concat2(
@@ -74,7 +69,7 @@ function bfs(world, start, goal) {
   const qs = [[[start]], []];
   const seen = new ValSet([start]);
 
-  while (qs.some(notEmpty)) {
+  while (true) {
     const q = qs[i % 2];
     const qNext = qs[(i + 1) % 2];
 
@@ -89,7 +84,10 @@ function bfs(world, start, goal) {
       }
     }
 
-    if (q.length === 0) i++;
+    if (q.length === 0) {
+      if (qNext.length !== 0) i++;
+      else break;
+    }
   }
 
   // undo last ++

@@ -32,7 +32,7 @@ let score = 0;
 function* play() {
   input[0] = 2;
   const game = run(input);
-  for (;;) {
+  while (true) {
     const { value, done } = game.next(joystick);
     if (done) break;
     yield value;
