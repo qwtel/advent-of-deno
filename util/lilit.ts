@@ -631,6 +631,10 @@ export function toMap<K, V>(MapLike: typeof Map = Map) {
   return (xs: Iterable<[K, V]>) => new MapLike(xs);
 }
 
+export function toString() {
+  return (xs: Iterable<String>) => [...xs].join('');
+}
+
 // CONSTRUCTORS
 
 export function* range(start = 0, end = Number.MAX_SAFE_INTEGER, step = 1): IterableIterator<number> {
