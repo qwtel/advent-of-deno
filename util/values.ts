@@ -29,7 +29,7 @@ export class ValMap<K, V> extends Map<K, V> {
     this._map = IMap(mapKeys<K, IV, V>(fromJS)(init || [])).asMutable();
   }
 
-  get(k: K) {
+  get(k: K): V {
     return this._map.get(fromJS(k));
   }
 
@@ -38,26 +38,26 @@ export class ValMap<K, V> extends Map<K, V> {
     return this;
   }
 
-  has(k: K) {
+  has(k: K): boolean {
     return this._map.has(fromJS(k));
   }
 
-  delete(k: K) {
+  delete(k: K): boolean {
     const keyVal = fromJS(k);
     const x = this._map.has(keyVal);
     this._map.delete(keyVal);
     return x;
   }
 
-  keys() {
+  keys(): IterableIterator<K> {
     return map<IV, K>(toJS)(this._map.keys());
   }
 
-  values() {
+  values(): IterableIterator<V> {
     return this._map.values();
   }
 
-  entries() {
+  entries(): IterableIterator<[K, V]> {
     return mapKeys<IV, K, V>(toJS)(this._map.entries());
   }
 
@@ -65,11 +65,11 @@ export class ValMap<K, V> extends Map<K, V> {
     return mapKeys<IV, K, V>(toJS)(this._map[Symbol.iterator]());
   }
 
-  get size() {
+  get size(): number {
     return this._map.size;
   }
 
-  clear() {
+  clear(): void {
     return this._map.clear();
   }
 
@@ -95,7 +95,7 @@ export class ValSet<V> extends Set<V> {
     return this;
   }
 
-  has(v: V) {
+  has(v: V): boolean {
     return this._set.has(fromJS(v));
   }
 
@@ -106,22 +106,22 @@ export class ValSet<V> extends Set<V> {
     return x;
   }
 
-  delete(v: V) {
+  delete(v: V): boolean {
     const val = fromJS(v);
     const x = this._set.has(val);
     this._set.delete(val);
     return x;
   }
 
-  keys() {
+  keys(): IterableIterator<V> {
     return map<IV, V>(toJS)(this._set.keys());
   }
 
-  values() {
+  values(): IterableIterator<V> {
     return map<IV, V>(toJS)(this._set.values());
   }
 
-  entries() {
+  entries(): IterableIterator<[V, V]> {
     return map<[IV, IV], [V, V]>(([v1, v2]) => [toJS(v1), toJS(v2)])(this._set.entries());
   }
 
@@ -129,11 +129,11 @@ export class ValSet<V> extends Set<V> {
     return map<IV, V>(toJS)(this._set[Symbol.iterator]());
   }
 
-  get size() {
+  get size(): number {
     return this._set.size;
   }
 
-  clear() {
+  clear(): void {
     return this._set.clear();
   }
 
