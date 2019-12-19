@@ -3,10 +3,10 @@
 import { read, print } from '../util/aoc.ts';
 import { Array2D } from '../util/array2d.ts';
 import { ValMap } from '../util/values.ts';
-import { pipe, filter, map, constantly, grouped, count, find, every, sum, min, range, findIndex } from '../util/lilit.ts';
+import { pipe, filter, map, constantly, grouped, count, find, every, sum, min, range, findIndex, flatMap, flatten, pluck } from '../util/lilit.ts';
 import { isIn } from '../util/other.ts';
 import { run } from './intcode.js';
-import { makeGraph, incoming, outgoing, weight } from '../util/graph.ts';
+import { makeGraph, incoming, outgoing, weight, walk } from '../util/graph.ts';
 (async () => {
 
 const reactions = (await read())
@@ -19,7 +19,7 @@ const reactions = (await read())
     }))
   );
 
-// Returns a multiple of `minIncrement` >= `n`
+// Returns the next multiple of `minIncrement` that's >= `n`
 const nextMultiple = (n, minIncrement) => Math.ceil(n / minIncrement) * minIncrement;
 
 const minIncrements = new ValMap([['ORE', 1]]);
@@ -31,25 +31,35 @@ for (const [ingredients, [[n, result]]] of reactions) {
     edges.push([result, ingredient, m / n]);
   }
 }
+
+// const swap = ([a, b]) => [b, a];
+// const minIncrements = new ValMap([
+//   ['ORE', 1],
+//   ...pipe(reactions, pluck(1), flatten(), map(swap)),
+// ])
+
+// const edges = [...pipe(
+//   reactions,
+//   flatMap(([ingredients, [[n, result]]]) => pipe(
+//     ingredients, 
+//     map(([m, ingredient]) => [result, ingredient, m / n]),
+//   )),
+// )];
+
 const G = makeGraph(edges);
 
 function solve(nFuel) {
   const bom = new Map([['FUEL', nFuel]]);
-  const queue = ['FUEL'];
-  for (const _ of queue) { 
-    for (const chem of outgoing(G, _)) {
-      queue.push(chem);
-
-      const ingredients = incoming(G, chem);
-      if (!bom.has(chem) && pipe(ingredients, every(isIn(bom)))) {
-        const n = pipe(
-          ingredients,
-          map(_ => bom.get(_) * weight(G, [_, chem])),
-          sum(),
-          _ => nextMultiple(_, minIncrements.get(chem)),
-        );
-        bom.set(chem, n);
-      }
+  for (const chem of walk(G, 'FUEL')) {
+    const ingredients = incoming(G, chem);
+    if (!bom.has(chem) && pipe(ingredients, every(isIn(bom)))) {
+      const n = pipe(
+        ingredients,
+        map(_ => bom.get(_) * weight(G, [_, chem])),
+        sum(),
+        _ => nextMultiple(_, minIncrements.get(chem)),
+      );
+      bom.set(chem, n);
     }
   }
   return bom.get('ORE');
@@ -70,7 +80,7 @@ function search(f, target, [min, max]) {
 
 const TARGET = 1000000000000;
 let upper = 0;
-for(let x = 1; upper <= TARGET; x *= 2) upper = solve(x);
+for (let x = 1; upper <= TARGET; x *= 2) upper = solve(x);
 console.log(search(solve, TARGET, [1, upper]));
 
 })();

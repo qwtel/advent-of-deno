@@ -10,8 +10,6 @@ type Graph = {
   weights: ValMap<[string, string], number>;
 }
 
-const asFunc = <K, V>(m: Map<K, V>) => (k: K) => m.get(k)
-
 export function makeGraph(data: [string, string, number?][], { sorted = false }: { sorted?: boolean } = {}): Graph {
   const edges = pipe(data, map(([a, b]) => [a, b] as [string, string]), toArray());
   const vertices = new Set([...pipe(edges, flatten<string>())]);
@@ -38,6 +36,16 @@ export const incoming = ({ deps }: Graph, v: string) => deps.get(v) || [];
 export const outgoing = ({ dirs }: Graph, v: string) => dirs.get(v) || [];
 export const neighbors = (g: Graph, v: string) => [...incoming(g, v), ...outgoing(g, v)];
 export const weight = (g: Graph, e: [string, string]) => g.weights.get(e);
+
+// Walks the graph in bfs-like fashion, but will revisit nodes if they are encountered again.
+// Will not terminate for cyclic graphs!
+export function* walk(g: Graph, start: string) {
+  const q = [start];
+  for (const v of q) {
+    yield v;
+    q.push(...outgoing(g, v));
+  }
+}
 
 const unwind = (prev: Map<string, string>, target: string) => {
   const path: string[] = [];
@@ -87,7 +95,7 @@ export function dijkstra(g: Graph, source: string, target: string) {
 
   while (q.length) {
     // slooooooooooooooooooooow
-    const shortest = pipe(q, map(asFunc(dist)), min());
+    const shortest = pipe(q, map(_ => dist.get(_)), min());
     const u = findAndRemove(q, v => dist.get(v) === shortest);
 
     if (u === target) break;

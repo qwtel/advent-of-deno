@@ -37,9 +37,9 @@ const [laserPos, nrOfTargets] = pipe(
     unique(),
     count(),
   )),
-  maxByKey(1)
+  maxByKey(1),
 );
-console.log(nrOfTargets)
+console.log(nrOfTargets);
 
 // 2
 const print = (removed) => console.log(
@@ -56,12 +56,12 @@ const print = (removed) => console.log(
 if (env.DEBUG) console.log(`Putting laser at [${laserPos.map(pad(2))}]`);
 
 const dist = ([ax, ay], [bx, by]) => Math.abs(ax - bx) + Math.abs(ay - by);
-const distToLaser = (p) => dist(laserPos, p)
+const distToLaser = (p) => dist(laserPos, p);
 
 const nearestByAngle = pipe(
-  asteroids.filter(a => ne(laserPos, a)),
-  groupBy(a => calcAngle(laserPos, a)),
-  mapValues(ps => ps.sort((p1, p2) => distToLaser(p1) - distToLaser(p2))),
+  asteroids.filter(_ => ne(laserPos, _)),
+  groupBy(_ => calcAngle(laserPos, _)),
+  mapValues(_ => _.sort((a, b) => distToLaser(a) - distToLaser(b))),
   toMap(),
 );
 
@@ -69,13 +69,13 @@ const anglesClockwise = [...nearestByAngle.keys()].sort((a, b) => a - b);
 
 pipe(
   cycle(anglesClockwise),
-  skipWhile(a => a < -Math.PI/2),
-  map(angle => nearestByAngle.get(angle).shift()),
+  skipWhile(_ => _ < -Math.PI/2),
+  map(_ => nearestByAngle.get(_).shift()),
   filter(vaporized => vaporized != null),
   env.DEBUG && inspect(print),
   take(Math.min(200, asteroids.length - 2)),
   last(),
-  p => console.log(p[0] * 100 + p[1])
+  ([x, y]) => console.log(x * 100 + y),
 );
 
 // Old solution
