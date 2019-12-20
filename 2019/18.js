@@ -3,10 +3,9 @@
 import { read, print } from '../util/aoc.ts'
 import { Array2D } from '../util/array2d.ts'
 import { ValMap, ValSet } from '../util/values.ts'
-import { pipe, filter, map, constantly, grouped, count, find, every, sum, min, range, findIndex, flatMap, flatten, pluck, toArray, minByKey, product, mapValues, toMap, take, forEach, tap, filterValues } from '../util/lilit.ts'
+import { pipe, filter, map, constantly, grouped, count, find, every, sum, min, range, findIndex, flatMap, flatten, pluck, toArray, minByKey, product, mapValues, toMap, take, forEach, tap, filterValues, filterSecond } from '../util/lilit.ts'
 import { Graph } from '../util/graph2.ts'
 import { addTo } from '../util/vec2d.ts'
-import { sub } from '../util/set.ts'
 (async () => {
 
 const env = Deno.env();
@@ -54,17 +53,17 @@ function* bfs(world, start, goals) {
 }
 
 function* reachableKeys(world, currentKey, keysToCollect) {
-  const q = [[0, currentKey]];
+  const q = [[currentKey, 0]];
   const seen = new Set([]);
 
   const isUnlocked = _ => !keysToCollect.has(_.toLowerCase());
   const isUncollected = _ => isLowerCase(_) && keysToCollect.has(_);
 
-  for (const [len, curr] of q) {
-    for (const [, v, w] of pipe(world.outgoingEdges(curr), filterValues(_ => !seen.has(_)))) {
+  for (const [curr, dist] of q) {
+    for (const [, v, d] of pipe(world.outgoingEdges(curr), filterSecond(_ => !seen.has(_)))) {
       seen.add(v);
-      if (isUncollected(v)) yield [v, len + w]
-      if (isUnlocked(v)) q.push([len + w, v]);
+      if (isUncollected(v)) yield [v, dist + d];
+      if (isUnlocked(v)) q.push([v, dist + d]);
     }
   }
 }
@@ -74,44 +73,29 @@ const cache = new ValMap();
 const distanceToCollectKeys = (world, currentKey, keysToCollect) => {
   if (keysToCollect.size === 0) return 0;
 
-  const cacheKey =  [currentKey, keysToCollect];
-  if (cache.has(cacheKey)) return cache.get(cacheKey)
+  const cacheKey = [currentKey, keysToCollect];
+  if (cache.has(cacheKey)) return cache.get(cacheKey);
 
   let result = Number.POSITIVE_INFINITY;
   for (const [key, distance] of reachableKeys(world, currentKey, keysToCollect)) {
-    const next = ValSet.of(keysToCollect.data);
-    next.delete(key);
-    const d = distance + distanceToCollectKeys(world, key, next);
+    const d = distance + distanceToCollectKeys(world, key, keysToCollect.clone().remove(key));
     result = Math.min(result, d);
   }
 
-  cache.set(cacheKey, result)
+  cache.set(cacheKey, result);
   return result;
 }
 
-const edges = []
+const edges = [];
 for (const [startPos, from] of poi) {
   const goals = pipe(poi, pluck(1), filter(_ => _ !== from), Array.from)
   for (const [to, dist, path] of bfs(world2d, startPos, goals)) {
-    edges.push([from, to, dist])
+    edges.push([from, to, dist]);
   }
 }
 
-const world = new Graph(edges)
-const keysToCollect = new ValSet(pipe(poi, pluck(1), filter(_ => _ !== '@' && isLowerCase(_))))
-console.log(distanceToCollectKeys(world, '@', keysToCollect))
-
-// console.log(keys)
-// console.log(keys)
-// pipe(solve(), tap(console.log), find(([, path]) => path.length - 1 === keys.length), console.log)
-// pipe(solve(), take(2), forEach(console.log))
-
-
-
-
-
-
-
-
+const world = new Graph(edges);
+const keysToCollect = new ValSet(pipe(poi, pluck(1), filter(_ => _ !== '@' && isLowerCase(_))));
+console.log(distanceToCollectKeys(world, '@', keysToCollect));
 
 })()
