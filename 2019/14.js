@@ -4,9 +4,10 @@ import { read, print } from '../util/aoc.ts';
 import { Array2D } from '../util/array2d.ts';
 import { ValMap } from '../util/values.ts';
 import { pipe, filter, map, constantly, grouped, count, find, every, sum, min, range, findIndex, flatMap, flatten, pluck } from '../util/lilit.ts';
-import { isIn } from '../util/other.ts';
+import { isIn, ceil } from '../util/other.ts';
 import { run } from './intcode.js';
 import { makeGraph, incoming, outgoing, weight, walk } from '../util/graph.ts';
+import { Graph } from '../util/graph2.ts';
 (async () => {
 
 const reactions = (await read())
@@ -18,9 +19,6 @@ const reactions = (await read())
       return [Number(n), chem]
     }))
   );
-
-// Returns the next multiple of `minIncrement` that's >= `n`
-const nextMultiple = (n, minIncrement) => Math.ceil(n / minIncrement) * minIncrement;
 
 const minIncrements = new ValMap([['ORE', 1]]);
 const edges = [];
@@ -46,18 +44,18 @@ for (const [ingredients, [[n, result]]] of reactions) {
 //   )),
 // )];
 
-const G = makeGraph(edges);
+const g = new Graph(edges);
 
 function solve(nFuel) {
   const bom = new Map([['FUEL', nFuel]]);
-  for (const chem of walk(G, 'FUEL')) {
-    const ingredients = incoming(G, chem);
+  for (const chem of g.walk('FUEL')) {
+    const ingredients = [...g.incoming(chem)];
     if (!bom.has(chem) && pipe(ingredients, every(isIn(bom)))) {
       const n = pipe(
         ingredients,
-        map(_ => bom.get(_) * weight(G, [_, chem])),
+        map(_ => bom.get(_) * g.weight([_, chem])),
         sum(),
-        _ => nextMultiple(_, minIncrements.get(chem)),
+        _ => ceil(_, minIncrements.get(chem)),
       );
       bom.set(chem, n);
     }
