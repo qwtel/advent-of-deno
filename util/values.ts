@@ -11,58 +11,94 @@
 // This module would be rendered obsolete it if the "Record & Tuple" proposal was to be accepted by TC39:
 // https://github.com/tc39/proposal-record-tuple
 
-import { Map as IMap, Set as ISet, fromJS as _fromJS } from 'immutable';
+import { Map as IMap, Set as ISet, List as IList, fromJS as _fromJS } from 'immutable';
 
-import { map, mapKeys } from './lilit.ts';
+import { map } from './lilit.ts';
 
-// TODO: types
-type IV = { toJS: any };
+type IV = { toJS: any, asMutable: any, get: any, has: any, delete: any, isList: any, [Symbol.iterator]: any };
 
-const toJS = <K>(_: IV) => (_ && _.toJS ? _.toJS() : _) as K;
-const fromJS = <K>(_: K): IV => _fromJS(_);
+const MAP_TYPE = '__VAL_MAP__';
+const SET_TYPE = '__VAL_SET__';
+
+const BARE = Symbol('bare');
+
+const fromImmutableKey = <K>(v: IV): K => {
+  if (v?.isList?.()) return [...map(fromImmutableKey)(v)] as unknown as K;
+  if (v?.has?.(MAP_TYPE)) return ValMap.of(v) as unknown as K;
+  if (v?.has?.(SET_TYPE)) return ValSet.of(v) as unknown as K;
+  // TODO: Plain Object / Record
+  return (v?.toJS?.() ?? v) as K;
+}
+
+const toImmutableKey = <K>(v: K): IV => {
+  if (v instanceof Array) return IList(v.map(toImmutableKey));
+  if (v instanceof ValMap) return v.data;
+  if (v instanceof ValSet) return v.data;
+  // TODO: Plain Object / Record
+  return _fromJS(v);
+}
+
+// As as `fromImmutableKey`, but will leave unknown types untouched.
+const fromImmutableVal = <K>(v: IV): K => {
+  if (v?.isList?.()) return [...map(fromImmutableKey)(v)] as unknown as K;
+  if (v?.has?.(MAP_TYPE)) return ValMap.of(v) as unknown as K;
+  if (v?.has?.(SET_TYPE)) return ValSet.of(v) as unknown as K;
+  // TODO: Plain Object / Record
+  return v as unknown as K;
+}
+
+// As as `toImmutableKey`, but will leave unknown types untouched.
+const toImmutableVal = <K>(v: K) => {
+  if (v instanceof Array) return IList(v.map(toImmutableKey));
+  if (v instanceof ValMap) return v.data;
+  if (v instanceof ValSet) return v.data;
+  // TODO: Plain Object / Record
+  return v;
+}
 
 export class ValMap<K, V> extends Map<K, V> {
   private _map: any;
 
   constructor(init?: Iterable<[K, V]>) {
     super();
-    this._map = IMap(mapKeys<K, IV, V>(fromJS)(init || [])).asMutable();
+    if (init as unknown === BARE) return;
+    this._map = IMap(map(([k, v]) => [toImmutableKey(k), toImmutableVal(v)])(init || [])).asMutable();
   }
 
   get(k: K): V {
-    return this._map.get(fromJS(k));
+    return fromImmutableVal(this._map.get(toImmutableKey(k)));
   }
 
   set(k: K, v: V) {
-    this._map.set(fromJS(k), v);
+    this._map.set(toImmutableKey(k), toImmutableVal(v));
     return this;
   }
 
   has(k: K): boolean {
-    return this._map.has(fromJS(k));
+    return this._map.has(toImmutableKey(k));
   }
 
   delete(k: K): boolean {
-    const keyVal = fromJS(k);
+    const keyVal = toImmutableKey(k);
     const x = this._map.has(keyVal);
     this._map.delete(keyVal);
     return x;
   }
 
   keys(): IterableIterator<K> {
-    return map<IV, K>(toJS)(this._map.keys());
+    return map<IV, K>(fromImmutableKey)(this._map.keys());
   }
 
   values(): IterableIterator<V> {
-    return this._map.values();
+    return map<IV, V>(fromImmutableVal)(this._map.values());
   }
 
   entries(): IterableIterator<[K, V]> {
-    return mapKeys<IV, K, V>(toJS)(this._map.entries());
+    return map<[IV, IV], [K, V]>(([k, v]) => [fromImmutableKey(k), fromImmutableVal(v)])(this._map.entries());
   }
 
   [Symbol.iterator]() {
-    return mapKeys<IV, K, V>(toJS)(this._map[Symbol.iterator]());
+    return map<[IV, IV], [K, V]>(([k, v]) => [fromImmutableKey(k), fromImmutableVal(v)])(this._map[Symbol.iterator]());
   }
 
   get size(): number {
@@ -74,52 +110,77 @@ export class ValMap<K, V> extends Map<K, V> {
   }
 
   forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void {
-    this._map.forEach((value: V, key: IV) => callbackfn(value, toJS(key), this), thisArg);
+    this._map.forEach((value: IV, key: IV) => callbackfn(fromImmutableVal(value), fromImmutableKey(key), this), thisArg);
   }
 
   get [Symbol.toStringTag](): string {
     return 'ValMap';
   }
-}
 
-export class ValSet<V> extends Set<V> {
-  private _set: any;
+  // Non-Standard Methods
+  // --------------------
 
-  constructor(init?: Iterable<V>) {
-    super();
-    this._set = ISet(map<V, IV>(fromJS)(init || [])).asMutable();
-  }
-
-  add(v: V) {
-    this._set.add(fromJS(v));
+  remove(k: K) {
+    this.delete(k);
     return this;
   }
 
-  has(v: V): boolean {
-    return this._set.has(fromJS(v));
+  static of<K, V>(data: IV) {
+    const x = new ValMap<K, V>(BARE as any)
+    x._map = data.asMutable().delete(MAP_TYPE);
+    return x;
   }
 
-  delete(v: V): boolean {
-    const val = fromJS(v);
+  get data() {
+    const map = this._map.asImmutable();
+    this._map = map.asMutable();
+    return map.set(MAP_TYPE);
+  }
+
+  clone() {
+    return ValMap.of<K, V>(this.data);
+  }
+}
+
+export class ValSet<K> extends Set<K> {
+  private _set: any;
+
+  constructor(init?: Iterable<K>) {
+    super();
+    if (init as unknown === BARE) return;
+    this._set = ISet(map<K, IV>(toImmutableKey)(init || [])).asMutable();
+  }
+
+  add(v: K) {
+    this._set.add(toImmutableKey(v));
+    return this;
+  }
+
+  has(v: K): boolean {
+    return this._set.has(toImmutableKey(v));
+  }
+
+  delete(v: K): boolean {
+    const val = toImmutableKey(v);
     const x = this._set.has(val);
     this._set.delete(val);
     return x;
   }
 
-  keys(): IterableIterator<V> {
-    return map<IV, V>(toJS)(this._set.keys());
+  keys(): IterableIterator<K> {
+    return map<IV, K>(fromImmutableKey)(this._set.keys());
   }
 
-  values(): IterableIterator<V> {
-    return map<IV, V>(toJS)(this._set.values());
+  values(): IterableIterator<K> {
+    return map<IV, K>(fromImmutableKey)(this._set.values());
   }
 
-  entries(): IterableIterator<[V, V]> {
-    return map<[IV, IV], [V, V]>(([v1, v2]) => [toJS(v1), toJS(v2)])(this._set.entries());
+  entries(): IterableIterator<[K, K]> {
+    return map<[IV, IV], [K, K]>(([v1, v2]) => [fromImmutableKey(v1), fromImmutableKey(v2)])(this._set.entries());
   }
 
   [Symbol.iterator]() {
-    return map<IV, V>(toJS)(this._set[Symbol.iterator]());
+    return map<IV, K>(fromImmutableKey)(this._set[Symbol.iterator]());
   }
 
   get size(): number {
@@ -130,14 +191,35 @@ export class ValSet<V> extends Set<V> {
     return this._set.clear();
   }
 
-  forEach(callbackfn: (value: V, value2: V, set: Set<V>) => void, thisArg?: any): void {
-    this._set.forEach((value1: IV, value2: IV) => callbackfn(toJS(value1), toJS(value2), this), thisArg);
+  forEach(callbackfn: (value: K, value2: K, set: Set<K>) => void, thisArg?: any): void {
+    this._set.forEach((value: IV, value2: IV) => callbackfn(fromImmutableKey(value), fromImmutableKey(value2), this), thisArg);
   }
 
   get [Symbol.toStringTag](): string {
     return 'ValSet';
   }
-}
 
-// TODO
-// export class ValArray {}
+  // Non-Standard Methods
+  // --------------------
+
+  remove(v: K) {
+    this.delete(v);
+    return this;
+  }
+
+  static of<K>(data: IV) {
+    const x = new ValSet<K>(BARE as any);
+    x._set = data.asMutable().delete(SET_TYPE);
+    return x;
+  }
+
+  get data() {
+    const set = this._set.asImmutable();
+    this._set = set.asMutable();
+    return set.add(SET_TYPE);
+  }
+
+  clone() {
+    return ValSet.of<K>(this.data);
+  }
+}

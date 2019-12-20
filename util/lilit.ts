@@ -120,6 +120,26 @@ export function filter<X>(p: (x: X) => boolean) {
   };
 }
 
+export function filterKeys<K, V>(p: (k: K) => boolean) {
+  return function*(xs: Iterable<[K, V]>): IterableIterator<[K, V]> {
+    for (const x of xs) {
+      const [k] = x;
+      if (p(k)) yield x;
+    }
+  };
+}
+
+export function filterValues<K, V>(p: (k: V) => boolean) {
+  return function*(xs: Iterable<[K, V]>): IterableIterator<[K, V]> {
+    for (const x of xs) {
+      const [, v] = x;
+      if (p(v)) yield x;
+    }
+  };
+}
+
+export { filterKeys as filterFirst, filterValues as filterSecond }
+
 export function filterMap<X, Y>(f: (x: X) => Y) {
   return function*(xs: Iterable<X>): IterableIterator<Y> {
     for (const x of xs) {
