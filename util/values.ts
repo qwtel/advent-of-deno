@@ -99,13 +99,6 @@ export class ValSet<V> extends Set<V> {
     return this._set.has(fromJS(v));
   }
 
-  hasOrAdd(v: V): boolean {
-    const val = fromJS(v);
-    const x = this._set.has(val);
-    if (!x) this._set.add(val);
-    return x;
-  }
-
   delete(v: V): boolean {
     const val = fromJS(v);
     const x = this._set.has(val);

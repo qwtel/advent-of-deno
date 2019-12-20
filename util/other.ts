@@ -104,6 +104,10 @@ export function gcd(a: number, ...bs: number[]) {
     return bs.reduce(_gcd, a);
 }
 
+export const floor = (n: number, basis = 1) => Math.floor(n / basis) * basis;
+export const ceil = (n: number, basis = 1) => Math.ceil(n / basis) * basis;
+export const round = (n: number, basis = 1) => Math.round(n / basis) * basis;
+
 /**
  * Returns a random integer between min (inclusive) and max (inclusive).
  * The value is no lower than min (or the next integer greater than min
