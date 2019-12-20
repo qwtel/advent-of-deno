@@ -267,6 +267,16 @@ export function find<X>(p: (x: X) => boolean) {
   };
 }
 
+export function findLast<X>(p: (x: X) => boolean) {
+  return function(xs: Iterable<X>): X | null {
+    let last = null;
+    for (const x of xs) {
+      if (p(x)) last = x;
+    }
+    return last;
+  };
+}
+
 export function findIndex<X>(p: (x: X) => boolean) {
   return function(xs: Iterable<X>): number {
     let i = 0;
@@ -275,6 +285,18 @@ export function findIndex<X>(p: (x: X) => boolean) {
       i++;
     }
     return -1;
+  };
+}
+
+export function findLastIndex<X>(p: (x: X) => boolean) {
+  return function(xs: Iterable<X>): number {
+    let i = 0;
+    let l = -1;
+    for (const x of xs) {
+      if (p(x)) l = i;
+      i++;
+    }
+    return l;
   };
 }
 
