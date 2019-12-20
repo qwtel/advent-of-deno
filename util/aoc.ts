@@ -23,6 +23,12 @@ export async function read(file: Deno.File = Deno.stdin): Promise<string> {
     return b.toString();
 }
 
+export async function locateInputFile(url: string) {
+    const match = new URL(url).pathname.match(/([^/]+)$/);
+    const fName = match?.[1].split('.')[0];
+    return fName && await Deno.open(`./input/${fName}`);
+}
+
 /** 
  * Simple helper to read numeric arguments of the form `<flag> <number>` 
  * from the argument list with fallback values. Mind the empty space between flag and number!
