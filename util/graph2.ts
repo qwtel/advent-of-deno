@@ -1,7 +1,6 @@
 import { pipe, map, min, filter, pairwise, flatten, toArray, sum, flatMap, product2, concat2, toSet } from "./lilit.ts";
 import { findAndRemove } from "./other.ts";
 import { ValMap, ValSet } from "./values.ts";
-// import { PriorityQueue } from "./priority-queue.ts";
 
 export type Edge = [string, string];
 export type WeightedEdge = [string, string, number];
@@ -18,7 +17,8 @@ export class Graph implements GraphData {
   deps: Map<string, Set<string>>;
   weights: ValMap<[string, string], number>;
 
-  constructor(data: [string, string, number?][]) {
+  constructor(data: Iterable<WeightedEdge>) {
+    data = [...data];
     const edges = pipe(data, map(([a, b]) => [a, b] as [string, string]), toArray());
     this.vertices = new Set([...pipe(edges, flatten<string>())]);
       

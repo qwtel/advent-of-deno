@@ -52,15 +52,24 @@ function* bfs(world, start, goals) {
   }
 }
 
+const world = new Graph(pipe(poi, flatMap(([startPos, from]) => {
+  const goals = pipe(poi, pluck(1), filter(_ => _ !== from), Array.from)
+  return pipe(
+    bfs(world2d, startPos, goals),
+    map(([to, dist]) => [from, to, dist])
+  );
+})));
+
 function* reachableKeys(world, currentKey, keysToCollect) {
   const q = [[currentKey, 0]];
-  const seen = new Set([]);
+  const seen = new Set();
 
   const isUnlocked = _ => !keysToCollect.has(_.toLowerCase());
   const isUncollected = _ => isLowerCase(_) && keysToCollect.has(_);
 
   for (const [curr, dist] of q) {
-    for (const [, v, d] of pipe(world.outgoingEdges(curr), filterSecond(_ => !seen.has(_)))) {
+    for (const [, v, d] of world.outgoingEdges(curr)) {
+      if (seen.has(v)) continue;
       seen.add(v);
       if (isUncollected(v)) yield [v, dist + d];
       if (isUnlocked(v)) q.push([v, dist + d]);
@@ -69,32 +78,22 @@ function* reachableKeys(world, currentKey, keysToCollect) {
 }
 
 const cache = new ValMap();
-
 const distanceToCollectKeys = (world, currentKey, keysToCollect) => {
   if (keysToCollect.size === 0) return 0;
 
   const cacheKey = [currentKey, keysToCollect];
   if (cache.has(cacheKey)) return cache.get(cacheKey);
 
-  let result = Number.POSITIVE_INFINITY;
-  for (const [key, distance] of reachableKeys(world, currentKey, keysToCollect)) {
-    const d = distance + distanceToCollectKeys(world, key, keysToCollect.clone().remove(key));
-    result = Math.min(result, d);
-  }
+  const result = pipe(
+    reachableKeys(world, currentKey, keysToCollect),
+    map(([key, d]) => d + distanceToCollectKeys(world, key, keysToCollect.clone().remove(key))),
+    min(),
+  );
 
   cache.set(cacheKey, result);
   return result;
 }
 
-const edges = [];
-for (const [startPos, from] of poi) {
-  const goals = pipe(poi, pluck(1), filter(_ => _ !== from), Array.from)
-  for (const [to, dist, path] of bfs(world2d, startPos, goals)) {
-    edges.push([from, to, dist]);
-  }
-}
-
-const world = new Graph(edges);
 const keysToCollect = new ValSet(pipe(poi, pluck(1), filter(_ => _ !== '@' && isLowerCase(_))));
 console.log(distanceToCollectKeys(world, '@', keysToCollect));
 
