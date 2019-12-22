@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read, print } from '../util/aoc.ts'
-import { Array2D, neighbors4, neighbors8 } from '../util/array2d.ts'
+import { Array2D, neighbors4, neighbors8, bfs } from '../util/array2d.ts'
 import { ValMap, ValSet } from '../util/values.ts'
 import { pipe, filter, map, constantly, grouped, count, find, every, sum, min, range, rangeX, findIndex, flatMap, flatten, pluck, toArray, minByKey, product, mapValues, toMap, take, forEach, tap, filterValues, filterSecond, product2, combinations, combinations2, permutations, permutations2 } from '../util/lilit.ts'
 import { Graph } from '../util/graph2.ts'
@@ -17,43 +17,15 @@ const world2d = Array2D.fromString(await read())
 
 if (env.DEBUG) print(world2d.toString())
 
-// TODO: make general array2d bfs...
-function* bfs(world, start, goals) {
-  let i = 0
-  const qs = [[[start]], []]
-  const seen = new ValSet([start])
-
-  while (true) {
-    const q = qs[i % 2]
-    const qNext = qs[(i + 1) % 2]
-
-    const path = q.shift()
-    for (const p of neighbors4(last(path))) {
-      const v = world.get(p)
-      if (goals.includes(v)) {
-        yield [v, i + 1, [...path, p]]
-      } else if (v === '.' && !seen.has(p)) {
-        qNext.push([...path, p])
-        seen.add(p)
-      }
-    }
-
-    if (q.length === 0) {
-      if (qNext.length !== 0) i++
-      else break
-    }
-  }
-}
-
 // Takes a 2d representation, extracts the points of interest (everything that's not a wall `#` or path `.`)
 // and builds a graph of the shortest paths between them.
 function compactWorld(world2D) {
-  const poi = pipe(world2d.entries(), filterValues(v => !['.', '#'].includes(v)), Array.from)
+  const poi = pipe(world2d.entries(), filterValues(v => !'.#'.includes(v)), Array.from)
   return new Graph(pipe(poi, flatMap(([startPos, from]) => {
     const goals = pipe(poi, pluck(1), filter(_ => _ !== from), Array.from)
     return pipe(
-      bfs(world2d, startPos, goals),
-      map(([to, dist]) => [from, to, dist])
+      bfs(world2d, startPos, goals, '.'),
+      map(([to, dist]) => [from, to, dist]),
     );
   })));
 }

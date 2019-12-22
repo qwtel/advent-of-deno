@@ -1,13 +1,14 @@
-import { ValMap } from "./values.ts";
+import { ValMap, ValSet } from "./values.ts";
 import { pipe, unzip2, minMax, find, product2, rangeX, filter, map } from "./lilit.ts";
 import { addTo, mkNe } from "./vec2.ts";
+import { last } from "./other.ts";
 
 export type Point = [number, number];
 export type Bounds = [[number, number], [number, number]];
 type PointMap<X> = ValMap<Point, X>;
 
-export const neighbors4 = (point: Point = [0, 0]) => [[0, -1], [0, 1], [-1, 0], [1, 0]].map(addTo(point));
-export const neighbors8 = (point: Point = [0, 0]) => pipe(product2(rangeX(-1, 1), rangeX(-1, 1)), filter(mkNe([0, 0])), map(addTo(point)));
+export const neighbors4 = (point: Point = [0, 0]) => pipe([[0, -1], [0, 1], [-1, 0], [1, 0]], map(addTo(point))) as IterableIterator<Point>
+export const neighbors8 = (point: Point = [0, 0]) => pipe(product2(rangeX(-1, 1), rangeX(-1, 1)), filter(mkNe([0, 0])), map(addTo(point))) as IterableIterator<Point>;
 
 export class Array2D<X> {
     private _bounds: Bounds;
@@ -94,12 +95,15 @@ export class Array2D<X> {
         return pipe(this.entries(), find(([p, x]) => f(x, p, this)), _ => _ && _[0]);
     }
 
-    *neighbors4(p: Point): IterableIterator<Point> {
-        return pipe(neighbors4(p), filter(this.isInside));
+    neighbors4 = (p: Point) => pipe(neighbors4(p), filter(this.isInside));
+    neighbors8 = (p: Point) => pipe(neighbors8(p), filter(this.isInside));
+
+    bfs4(start: Point, goals: Set<X>, walkable: Set<X>) {
+        return bfs(this, start, goals, walkable, this.neighbors4);
     }
 
-    *neighbors8(p: Point): IterableIterator<Point> {
-        return pipe(neighbors8(p), filter(this.isInside));
+    bfs8(start: Point, goals: Set<X>, walkable: Set<X>) {
+        return bfs(this, start, goals, walkable, this.neighbors8);
     }
 
     set(point: Point, value: X): Array2D<X> {
@@ -214,5 +218,43 @@ export class Array2D<X> {
         let s = ''
         for (const r of this.rows()) s += r.join('') + '\n';
         return s;
+    }
+}
+
+export function* bfs<X>(
+    world: { get: (p: Point) => X }, 
+    start: Point, 
+    goals: Iterable<X>, 
+    walkable: Iterable<X>, 
+    adjacent: (x: Point) => IterableIterator<Point> = neighbors4,
+): IterableIterator<[X, number, Point[]]> {
+    const goals2 = new ValSet(goals);
+    const walkable2 = new ValSet(walkable);
+    console.log(start, goals2, walkable2)
+
+    const qs = [[[start]], []];
+    const seen = new ValSet([start]);
+    let i = 0;
+
+    while (true) {
+        const q = qs[i % 2];
+        const qNext = qs[(i + 1) % 2];
+
+        const path = q.shift();
+        for (const p of adjacent(last(path))) {
+            const v = world.get(p);
+            if (goals2.has(v)) {
+                yield [v, i + 1, [...path, p]];
+            }
+            if (walkable2.has(v) && !seen.has(p)) {
+                qNext.push([...path, p]);
+                seen.add(p);
+            }
+        }
+
+        if (q.length === 0) {
+            if (qNext.length !== 0) i++;
+            else break;
+        }
     }
 }

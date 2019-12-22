@@ -1,11 +1,11 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read, print } from '../util/aoc.ts';
-import { Array2D, neighbors4 } from '../util/array2d.ts';
+import { Array2D, neighbors4, bfs } from '../util/array2d.ts';
 import { add, addTo, eq, sub, mkNe as notEq } from '../util/vec2d.ts';
 import { ValMap, ValSet } from '../util/values.ts';
-import { pipe, filter, map, concat2, first } from '../util/lilit.ts';
-import { notIn, last, notEmpty } from '../util/other.ts'
+import { pipe, filter, map, concat2, first, last } from '../util/lilit.ts';
+import { notIn, notEmpty } from '../util/other.ts'
 import { run } from './intcode.js';
 (async () => {
 
@@ -61,45 +61,15 @@ for (const response of droid) {
   if (env.DEBUG) debug(curr);
 }
 
-function bfs(world, start, goal) {
-  let i = 0;
-  const qs = [[[start]], []];
-  const seen = new ValSet([start]);
-
-  while (true) {
-    const q = qs[i % 2];
-    const qNext = qs[(i + 1) % 2];
-
-    const path = q.shift();
-    for (const p of neighbors4(last(path))) {
-      const v = world.get(p);
-      if (v === goal) {
-        return [...path, p];
-      } else if (v === '.' && !seen.has(p)) {
-        qNext.push([...path, p]);
-        seen.add(p);
-      }
-    }
-
-    if (q.length === 0) {
-      if (qNext.length !== 0) i++;
-      else break;
-    }
-  }
-
-  // undo last ++
-  return i - 1;
-}
-
 // 1
 world.set(goal, 'X');
-const shortest = bfs(world, [0, 0], 'X');
-if (env.DEBUG) console.log(shortest);
-console.log(shortest.length - 1);
+const [, shortest, shortestPath] = pipe(bfs(world, [0, 0], 'X', '.'), first());
+if (env.DEBUG) console.log(shortestPath);
+console.log(shortest);
 
 // 2
 world.set(goal, '.');
-console.log(bfs(world, goal));
-
+const [, longest] = pipe(bfs(world, goal, '.', '.'), last());
+console.log(longest - 2)
 
 })();
