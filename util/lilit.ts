@@ -682,6 +682,9 @@ export function toString() {
 export function* range(start = 0, end = Number.MAX_SAFE_INTEGER, step = 1): IterableIterator<number> {
   for (let i = start; end > start ? i < end : i > end; i += step) yield i;
 }
+export function* rangeX(start = 0, end = Number.MAX_SAFE_INTEGER, step = 1): IterableIterator<number> {
+  for (let i = start; end > start ? i <= end : i >= end; i += step) yield i;
+}
 
 // TODO: rename to `entries`?
 export function* enumerate<X>(xs: Iterable<X>): IterableIterator<[number, X]> {

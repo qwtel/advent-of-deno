@@ -13,17 +13,17 @@ export function findAndRemove<X>(arr: X[], f: (x: X) => boolean) {
         : arr.splice(i, 1)[0];
 }
 
-// Fix for JS' modulo operator to support negative numbers.
+/** Fix for JS' modulo operator to support negative numbers. */
 export function mod(a: number, n: number) {
     return ((a % n) + n) % n
 }
 
-export function pad(n, char = ' ') {
-    return s => (new Array(n).fill(char).join('') + s).slice(-n);
+export function pad(n: number, char = ' ') {
+    return (s: any) => (new Array(n).fill(char).join('') + s).slice(-n);
 }
 
-// Old 2d array helper function, surpassed by Array2D class
-export function transpose(m) {
+/** Old 2d array helper function, surpassed by Array2D class */
+export function transpose(m: any[][]) {
     return m[0].map((_, i) => m.map(x => x[i]));
 }
 
@@ -31,41 +31,35 @@ export function flatten<X>(as: X[][]): X[] {
     return as.reduce((res, a) => (res.push(...a), res), [])
 }
 
-// Old 2d array helper function, surpassed by Array2D class
-export function* walk2D(arr2D) {
+/** Old 2d array helper function, surpassed by Array2D class */
+export function* walk2D(arr2D: any[][]) {
     for (const row of arr2D)
         for (const cell of row)
             yield cell;
 }
 
-// Old 2d array helper function, surpassed by Array2D class
-export function map2D(arr2D, f) {
+/** Old 2d array helper function, surpassed by Array2D class */
+export function map2D(arr2D: any[][], f) {
     return arr2D.map(row => row.map(f));
 }
 
-// Alternative title: Tuple-compare
-export function arrayCompare(as, bs): number {
+export function arrayCompare(as: any[], bs: any[]): number {
     const res = as[0] - bs[0];
-    if (res === 0 && as.length > 1) {
-        return arrayCompare(as.slice(1), bs.slice(1));
-    } else {
-        return res;
-    }
+    if (res === 0 && as.length > 1) return arrayCompare(as.slice(1), bs.slice(1));
+    return res;
 }
 
-export function getIn(keys) {
-    return (x) => {
+export function getIn(keys: (string | number | symbol)[]) {
+    return (x: Object) => {
         let r = x;
-        for (const k of keys) {
-            r = r != null ? r[k] : undefined;
-        }
+        for (const k of keys) r = r?.[k];
         return r;
     }
 }
 
-// Allows getting (and only getting!) out of bounds indices on an array, including negative indices.
-// E.g. `wrapped[-1]` will return the last element.
-// Usage: `const wrapped = wrap([1,2,3])`
+/** Allows getting (and only getting!) out of bounds indices on an array, including negative indices.
+  * E.g. `wrapped[-1]` will return the last element.
+  * Usage: `const wrapped = wrap([1,2,3])` */
 export const wrap = (arr = []) => new Proxy(arr, {
     get: (arr, prop) => {
         if (typeof prop === 'symbol') return arr[prop];
@@ -108,14 +102,15 @@ export const floor = (n: number, basis = 1) => Math.floor(n / basis) * basis;
 export const ceil = (n: number, basis = 1) => Math.ceil(n / basis) * basis;
 export const round = (n: number, basis = 1) => Math.round(n / basis) * basis;
 
-/**
- * Returns a random integer between min (inclusive) and max (inclusive).
- * The value is no lower than min (or the next integer greater than min
- * if min isn't an integer) and no greater than max (or the next integer
- * lower than max if max isn't an integer).
- * Using Math.round() will give you a non-uniform distribution!
- * @see https://stackoverflow.com/a/1527820/870615
- */
+/** Bind all functions of an object to the object itself. */
+export const bindAll = (ns: Object) => { for (const key in ns) if (typeof ns[key] === 'function') ns[key] = ns[key].bind(ns); }
+
+/** Returns a random integer between min (inclusive) and max (inclusive).
+  * The value is no lower than min (or the next integer greater than min
+  * if min isn't an integer) and no greater than max (or the next integer
+  * lower than max if max isn't an integer).
+  * Using Math.round() will give you a non-uniform distribution!
+  * @see https://stackoverflow.com/a/1527820/870615 */
 export function getRandomInteger(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }

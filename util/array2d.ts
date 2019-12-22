@@ -1,9 +1,13 @@
 import { ValMap } from "./values.ts";
-import { pipe, unzip2, minMax } from "./lilit.ts";
+import { pipe, unzip2, minMax, find, product2, rangeX, filter, map } from "./lilit.ts";
+import { addTo, mkNe } from "./vec2.ts";
 
 export type Point = [number, number];
 export type Bounds = [[number, number], [number, number]];
 type PointMap<X> = ValMap<Point, X>;
+
+export const neighbors4 = (point: Point = [0, 0]) => [[0, -1], [0, 1], [-1, 0], [1, 0]].map(addTo(point));
+export const neighbors8 = (point: Point = [0, 0]) => pipe(product2(rangeX(-1, 1), rangeX(-1, 1)), filter(mkNe([0, 0])), map(addTo(point)));
 
 export class Array2D<X> {
     private _bounds: Bounds;
@@ -16,6 +20,10 @@ export class Array2D<X> {
             a.set(p, arr2D[iy][ix]);
         }
         return a;
+    }
+
+    static fromString(s: string, bounds?: Bounds) {
+        return Array2D.of(s.trim().split('\n').map(_ => _.split('')), bounds)
     }
 
     static fromMinMax<X>([[minX, maxX], [minY, maxY]]: Bounds, fill: X) {
@@ -76,6 +84,22 @@ export class Array2D<X> {
             row.map((c, ix) => f(c, this._indexToCoord(ix, iy), this)));
         a._bounds = this.bounds;
         return a;
+    }
+
+    find(f: (x: X, p?: Point, self?: Array2D<X>) => boolean): X {
+        return pipe(this.entries(), find(([p, x]) => f(x, p, this)), _ => _ && _[1]);
+    }
+
+    findPoint(f: (x: X, p?: Point, self?: Array2D<X>) => boolean): Point {
+        return pipe(this.entries(), find(([p, x]) => f(x, p, this)), _ => _ && _[0]);
+    }
+
+    *neighbors4(p: Point): IterableIterator<Point> {
+        return pipe(neighbors4(p), filter(this.isInside));
+    }
+
+    *neighbors8(p: Point): IterableIterator<Point> {
+        return pipe(neighbors8(p), filter(this.isInside));
     }
 
     set(point: Point, value: X): Array2D<X> {
@@ -176,12 +200,12 @@ export class Array2D<X> {
         for (const p of this.edgeCoords()) yield [p, this.get(p)];
     }
 
-    isInside([x, y]: Point): boolean {
+    isInside = ([x, y]: Point): boolean => {
         const [[minX, minY], [maxX, maxY]] = this._bounds;
         return x >= minX && x < maxX && y >= minY && y < maxY;
     }
 
-    isOutside([x, y]: Point): boolean {
+    isOutside = ([x, y]: Point): boolean => {
         const [[minX, minY], [maxX, maxY]] = this._bounds;
         return x < minX || x >= maxX || y < minY || y >= maxY;
     }

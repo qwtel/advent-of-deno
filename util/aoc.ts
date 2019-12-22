@@ -1,10 +1,9 @@
 import { pipe, map, replaceWhen } from './lilit.ts';
-
-const bindAllFunctions = (ns: Object) => { for (const key in ns) if (typeof ns[key] === 'function') ns[key] = ns[key].bind(ns); }
+import { bindAll } from './other.ts';
 
 // IMPORTANT: Patching the global console/Math/JSON object so that methods can be passed to other functions.
-bindAllFunctions(console);
-bindAllFunctions(Math);
+bindAll(console);
+bindAll(Math);
 // TODO: others?
 
 export function print(...args: any[]) {
