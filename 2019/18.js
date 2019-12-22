@@ -56,12 +56,12 @@ const distanceToCollectKeys = (world, currentKeys, keysToCollect) => {
   const cacheKey = [currentKeys, keysToCollect];
   if (cache.has(cacheKey)) return cache.get(cacheKey);
 
-  let result = Number.POSITIVE_INFINITY;
-  for (const [i, currentKey] of currentKeys.entries()) {
-    result = Math.min(result, pipe(
+  const result = pipe(
+    currentKeys.entries(),
+    map(([i, currentKey]) => pipe(
       reachableKeys(world, currentKey, keysToCollect),
       map(([key, d]) => {
-        const currentKeysNext = [...currentKeys]
+        const currentKeysNext = [...currentKeys];
         currentKeysNext[i] = key;
 
         const keysToCollectNext = keysToCollect.clone().remove(key);
@@ -69,8 +69,9 @@ const distanceToCollectKeys = (world, currentKeys, keysToCollect) => {
         return d + distanceToCollectKeys(world, currentKeysNext, keysToCollectNext);
       }),
       min(),
-    ));
-  }
+    )),
+    min(),
+  );
 
   cache.set(cacheKey, result);
   return result;
