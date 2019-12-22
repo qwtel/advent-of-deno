@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read, print } from '../util/aoc.ts'
-import { Array2D } from '../util/array2d.ts'
+import { Array2D, neighbors4 } from '../util/array2d.ts'
 import { add, addTo, eq, sub, mkNe as notEq } from '../util/vec2d.ts'
 import { pipe, filter, map, concat2, first, forEach, sum, toString, toArray } from '../util/lilit.ts'
 import { notIn, last, notEmpty } from '../util/other.ts'
@@ -17,8 +17,6 @@ const input = (await read())
 
 const [N, S, W, E] = [1, 2, 3, 4]
 const dirMap = { [N]: [0, -1], [S]: [0, 1], [W]: [-1, 0], [E]: [1, 0] }
-// Returns the 4 neighbors of point
-const n4 = (point) => Object.values(dirMap).map(addTo(point))
 
 const arr2 = pipe(run(input), map(String.fromCharCode), Array.from, x => x.join('').trim().split('\n'), Array2D.of)
 
@@ -27,7 +25,7 @@ if (env.DEBUG) console.log(arr2.toString())
 pipe(
   arr2.entries(),
   filter(([, x]) => x === '#'),
-  filter(([p]) => n4(p).map(_ => arr2.get(_)).every(v => v === '#')),
+  filter(([p]) => neighbors4(p).map(_ => arr2.get(_)).every(v => v === '#')),
   map(([[x, y]]) => x * y),
   sum(),
   console.log,

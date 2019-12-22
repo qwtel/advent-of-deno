@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read, print } from '../util/aoc.ts';
-import { Array2D } from '../util/array2d.ts';
+import { Array2D, neighbors4 } from '../util/array2d.ts';
 import { add, addTo, eq, sub, mkNe as notEq } from '../util/vec2d.ts';
 import { ValMap, ValSet } from '../util/values.ts';
 import { pipe, filter, map, concat2, first } from '../util/lilit.ts';
@@ -23,9 +23,6 @@ function* pop(path) {
 const [N, S, W, E] = [1, 2, 3, 4]
 const dirMap = { [N]: [0, -1], [S]: [0, 1], [W]: [-1, 0], [E]: [1, 0] }
 const dirMapRev = new ValMap(Object.entries(dirMap).map(([k, v]) => [v, k]))
-
-// Returns the 4 neighbors of point
-const n4 = (point) => Object.values(dirMap).map(addTo(point));
 
 let dir = 1, curr = [0, 0], next, goal;
 const channel = [dir];
@@ -53,7 +50,7 @@ for (const response of droid) {
   }
 
   const candidates = concat2(
-    pipe(n4(curr), filter(notIn(world))), // neighbors that we haven't explored
+    pipe(neighbors4(curr), filter(notIn(world))), // neighbors that we haven't explored
     pipe(pop(path), filter(notEq(curr))), // else backtrack + deal with weird edge case
   );
   if (next = pipe(candidates, first())) {
@@ -74,7 +71,7 @@ function bfs(world, start, goal) {
     const qNext = qs[(i + 1) % 2];
 
     const path = q.shift();
-    for (const p of n4(last(path))) {
+    for (const p of neighbors4(last(path))) {
       const v = world.get(p);
       if (v === goal) {
         return [...path, p];
