@@ -14,8 +14,15 @@ export function findAndRemove<X>(arr: X[], f: (x: X) => boolean) {
 }
 
 /** Fix for JS' modulo operator to support negative numbers. */
-export function mod(a: number, n: number) {
-    return ((a % n) + n) % n
+export function mod(x: number, n: number) {
+    return ((x % n) + n) % n
+}
+
+export function modInv(y: number, n: number) {
+    y %= n;
+    for (let x = 1; x < n; x++) {
+        if ((y * x) % n === 1) return x;
+    }
 }
 
 export function pad(n: number, char = ' ') {
