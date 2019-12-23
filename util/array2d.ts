@@ -230,7 +230,6 @@ export function* bfs<X>(
 ): IterableIterator<[X, number, Point[]]> {
     const goals2 = new ValSet(goals);
     const walkable2 = new ValSet(walkable);
-    console.log(start, goals2, walkable2)
 
     const qs = [[[start]], []];
     const seen = new ValSet([start]);
