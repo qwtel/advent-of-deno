@@ -1,11 +1,11 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
-import { read, print } from '../util/aoc.ts';
+import { read } from '../util/aoc.ts';
 import { Array2D, neighbors4, bfs } from '../util/array2d.ts';
-import { add, addTo, eq, sub, mkNe as notEq } from '../util/vec2d.ts';
-import { ValMap, ValSet } from '../util/values.ts';
-import { pipe, filter, map, concat2, first, last } from '../util/lilit.ts';
-import { notIn, notEmpty } from '../util/other.ts'
+import { add, eq, sub, mkNe as notEq } from '../util/vec2d.ts';
+import { ValMap } from '../util/values.ts';
+import { pipe, filter, concat2, first, last } from '../util/lilit.ts';
+import { notIn } from '../util/other.ts'
 import { run } from './intcode.js';
 (async () => {
 

@@ -1,12 +1,11 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read, print } from '../util/aoc.ts'
-import { Array2D, neighbors4, neighbors8, bfs } from '../util/array2d.ts'
+import { Array2D, bfs } from '../util/array2d.ts'
 import { ValMap, ValSet } from '../util/values.ts'
-import { pipe, filter, map, constantly, grouped, count, find, every, sum, min, range, rangeX, findIndex, flatMap, flatten, pluck, toArray, minByKey, product, mapValues, toMap, take, forEach, tap, filterValues, filterSecond, product2, combinations, combinations2, permutations, permutations2 } from '../util/lilit.ts'
+import { pipe, filter, map, min, rangeX, flatMap, pluck, filterValues, product2, toArray } from '../util/lilit.ts'
 import { Graph } from '../util/graph2.ts'
-import { addTo, mkNe, add } from '../util/vec2d.ts'
-import { last } from '../util/other.ts'
+import { add } from '../util/vec2d.ts'
 (async () => {
 
 const env = Deno.env();
@@ -19,10 +18,10 @@ if (env.DEBUG) print(world2d.toString())
 
 // Takes a 2d representation, extracts the points of interest (everything that's not a wall `#` or path `.`)
 // and builds a graph of the shortest paths between them.
-function compactWorld(world2D) {
-  const poi = pipe(world2d.entries(), filterValues(v => !'.#'.includes(v)), Array.from)
+function compactWorld(world2d) {
+  const poi = pipe(world2d.entries(), filterValues(v => !'.#'.includes(v)), toArray());
   return new Graph(pipe(poi, flatMap(([startPos, from]) => {
-    const goals = pipe(poi, pluck(1), filter(_ => _ !== from), Array.from)
+    const goals = pipe(poi, pluck(1), filter(_ => _ !== from), toArray())
     return pipe(
       bfs(world2d, startPos, goals, '.'),
       map(([to, dist]) => [from, to, dist]),
@@ -88,7 +87,7 @@ const pattern = Array2D.fromString(`
 %#&`, [[-1, -1], [2, 2]]);
 
 const p = world2d.findPoint(x => x === '@');
-for (const dp of [[0, 0], ...neighbors8()]) {
+for (const dp of product2(rangeX(-1, 1), rangeX(-1, 1))) {
   world2d.set(add(p, dp), pattern.get(dp));
 }
 

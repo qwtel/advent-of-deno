@@ -1,12 +1,9 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
-import { read, print } from '../util/aoc.ts';
-import { Array2D } from '../util/array2d.ts';
+import { read } from '../util/aoc.ts';
 import { ValMap } from '../util/values.ts';
-import { pipe, filter, map, constantly, grouped, count, find, every, sum, min, range, findIndex, flatMap, flatten, pluck } from '../util/lilit.ts';
+import { pipe,  map, every, sum } from '../util/lilit.ts';
 import { isIn, ceil } from '../util/other.ts';
-import { run } from './intcode.js';
-import { makeGraph, incoming, outgoing, weight, walk } from '../util/graph.ts';
 import { Graph } from '../util/graph2.ts';
 (async () => {
 

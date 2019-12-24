@@ -1,11 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
-import { read, print } from '../util/aoc.ts'
-import { ValMap, ValSet } from '../util/values.ts'
-import { pipe, filter, map, constantly, grouped, count, find, every, sum, min, range, findIndex, flatMap, flatten, pluck, toArray, minByKey, product, mapValues, toMap, take, forEach, tap, filterValues, filterSecond, product2, pairwise, zip, skip, mapKeys, last, takeWhile, reverse, findLast, findLastIndex, unzip2, zipMap, inspect } from '../util/lilit.ts'
-import { Graph } from '../util/graph2.ts'
-import { addTo, mkNe, ne } from '../util/vec2d.ts'
-import { mod, lcm, modInv } from '../util/other.ts'
+import { read } from '../util/aoc.ts'
+import { pipe, range, findIndex } from '../util/lilit.ts'
 (async () => {
 
 const RE_1 = /deal into new stack/
