@@ -1,4 +1,4 @@
-import { pipe, map, min, filter, pairwise, flatten, toArray, sum, flatMap, product2, concat2, toSet } from "./lilit.ts";
+import { pipe, map, min, filter, pairwise, flatten, toArray, sum, flatMap, product2, concat2, toSet } from "./iter.ts";
 import { findAndRemove } from "./other.ts";
 import { ValMap, ValSet, is } from "./values.ts";
 

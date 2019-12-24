@@ -2,7 +2,7 @@
 
 import { read } from '../util/aoc.ts'
 import { Array2D } from '../util/array2d.ts'
-import { pipe, filter, map, count, range, findIndex, product2, takeWhile, findLast, findLastIndex } from '../util/lilit.ts'
+import { pipe, filter, map, count, range, findIndex, product2, takeWhile, findLast, findLastIndex } from '../util/iter.ts'
 import { run } from './intcode.js'
 (async () => {
 

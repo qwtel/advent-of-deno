@@ -1,7 +1,7 @@
 // @ts-ignore
 import { Map as IMap } from 'immutable';
 
-import { map } from './lilit.ts';
+import { map } from './iter.ts';
 
 import { IV, MAP_TYPE, fromImmutableKey, fromImmutableVal, toImmutableKey, toImmutableVal, is } from './val-funcs.ts';
 

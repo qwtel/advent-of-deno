@@ -4,7 +4,7 @@ import { List as IList, fromJS as _fromJS, is as _is } from 'immutable';
 import { ValMap } from './val-map.ts'
 import { ValSet } from './val-set.ts'
 
-import { map } from './lilit.ts';
+import { map } from './iter.ts';
 
 export type IV = { toJS: any, asMutable: any, get: any, has: any, delete: any, isList: any, [Symbol.iterator]: any };
 

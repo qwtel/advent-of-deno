@@ -3,7 +3,7 @@
 import immutable, { fromJS } from 'immutable';
 import { read } from '../util/aoc.ts';
 import { lcm } from '../util/other.ts';
-import { pipe, map, toArray, constantly, sum, take, last, pluck, unzip3, scan, zip2, zip3, unzip2, findIndex } from '../util/lilit.ts';
+import { pipe, map, toArray, constantly, sum, take, last, pluck, unzip3, scan, zip2, zip3, unzip2, findIndex } from '../util/iter.ts';
 (async () => {
 
 const abs = (vec) => pipe(vec, map(Math.abs), sum());

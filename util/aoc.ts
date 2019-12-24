@@ -1,4 +1,4 @@
-import { pipe, map, replaceWhen } from './lilit.ts';
+import { pipe, map, replaceWhen } from './iter.ts';
 import { bindAll } from './other.ts';
 
 // IMPORTANT: Patching the global console/Math/JSON object so that methods can be passed to other functions.

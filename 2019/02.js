@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';
-import { pipe, product2, range, zipMap, find } from '../util/lilit.ts'
+import { pipe, product2, range, zipMap, find } from '../util/iter.ts'
 import { run } from './intcode.js';
 (async () => {
 

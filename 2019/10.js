@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, toArray, toMap, last, take, inspect, flat, some } from '../util/lilit.ts';
+import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, toArray, toMap, last, take, inspect, flat, some } from '../util/iter.ts';
 import { Array2D } from '../util/array2d.ts';
 import { eq, ne, sub } from '../util/vec2d.ts';
 import { pad } from '../util/other.ts';
@@ -75,7 +75,8 @@ pipe(
   env.DEBUG && inspect(print),
   take(Math.min(200, asteroids.length - 2)),
   last(),
-  ([x, y]) => console.log(x * 100 + y),
+  ([x, y]) => x * 100 + y,
+  console.log,
 );
 
 // Old solution

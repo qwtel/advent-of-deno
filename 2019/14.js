@@ -2,7 +2,7 @@
 
 import { read } from '../util/aoc.ts';
 import { ValMap } from '../util/values.ts';
-import { pipe,  map, every, sum } from '../util/lilit.ts';
+import { pipe,  map, every, sum } from '../util/iter.ts';
 import { isIn, ceil } from '../util/other.ts';
 import { Graph } from '../util/graph2.ts';
 (async () => {

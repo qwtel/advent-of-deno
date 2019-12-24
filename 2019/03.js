@@ -2,7 +2,7 @@
 
 import { fromJS, Set as ISet, List as IList } from 'immutable'
 import { read } from '../util/aoc.ts';
-import { pipe, min, flatMap, map, scan, repeat, takeWhile, sum, count, share, zip2, range } from '../util/lilit.ts'
+import { pipe, min, flatMap, map, scan, repeat, takeWhile, sum, count, share, zip2, range } from '../util/iter.ts'
 import { ne, add } from '../util/vec2d.ts';
 import { ValMap } from '../util/values.ts';
 (async () => {

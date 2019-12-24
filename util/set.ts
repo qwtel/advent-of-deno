@@ -1,4 +1,4 @@
-import { concat, filter } from './lilit.ts';
+import { concat, filter } from './iter.ts';
 
 export function union(...as: Iterable<{}>[]): Set<{}> {
     return new Set(concat(...as));

@@ -1,7 +1,7 @@
 // @ts-ignore
 import { Set as ISet } from 'immutable';
 
-import { map } from './lilit.ts';
+import { map } from './iter.ts';
 
 import { IV, SET_TYPE, fromImmutableKey, toImmutableKey, is } from './val-funcs.ts';
 

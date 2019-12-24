@@ -1,5 +1,5 @@
 import { ValMap, ValSet } from "./values.ts";
-import { pipe, unzip2, minMax, find, product2, rangeX, filter, map } from "./lilit.ts";
+import { pipe, unzip2, minMax, find, product2, rangeX, filter, map } from "./iter.ts";
 import { addTo, mkNe } from "./vec2.ts";
 import { last } from "./other.ts";
 

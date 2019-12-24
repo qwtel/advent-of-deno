@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts'
-import { pipe, range, findIndex } from '../util/lilit.ts'
+import { pipe, range, findIndex } from '../util/iter.ts'
 (async () => {
 
 const RE_1 = /deal into new stack/

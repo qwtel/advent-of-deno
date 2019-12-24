@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, zipMap, range, grouped, minByKey, zip2, toArray } from '../util/lilit.ts';
+import { pipe, zipMap, range, grouped, minByKey, zip2, toArray } from '../util/iter.ts';
 import { Array2D } from '../util/array2d.ts';
 (async () => {
 

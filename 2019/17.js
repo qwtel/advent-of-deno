@@ -3,7 +3,7 @@
 import { read } from '../util/aoc.ts'
 import { Array2D, neighbors4 } from '../util/array2d.ts'
 import { eq, sub, ne } from '../util/vec2d.ts'
-import { pipe, filter, map, sum, toArray, every, count, zipMap, filterValues, pairwise, groupedUntilChanged, startWith, grouped } from '../util/lilit.ts'
+import { pipe, filter, map, sum, toArray, every, count, zipMap, filterValues, pairwise, groupedUntilChanged, startWith, grouped } from '../util/iter.ts'
 import { run } from './intcode.js'
 import { ValMap } from '../util/values.ts'
 (async () => {
