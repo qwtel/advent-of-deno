@@ -1,3 +1,4 @@
+// @ts-ignore
 import { List as IList, fromJS as _fromJS, is as _is } from 'immutable';
 
 import { ValMap } from './val-map.ts'

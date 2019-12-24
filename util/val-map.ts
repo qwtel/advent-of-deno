@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Map as IMap } from 'immutable';
 
 import { map } from './lilit.ts';

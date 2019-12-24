@@ -12,6 +12,8 @@ export function print(...args: any[]) {
     }
 }
 
+globalThis.print = print;
+
 /**
  * Helper function to read the standard input (or any other stream) 
  * to the end and return as UTF-8 string.

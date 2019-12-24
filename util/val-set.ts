@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Set as ISet } from 'immutable';
 
 import { map } from './lilit.ts';
