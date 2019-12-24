@@ -62,7 +62,8 @@ export class ValMap<K, V> extends Map<K, V> {
   constructor(init?: Iterable<[K, V]>) {
     super();
     if (init as unknown === BARE) return;
-    this._map = IMap(map(([k, v]) => [toImmutableKey(k), toImmutableVal(v)])(init || [])).asMutable();
+    else if (init instanceof ValMap) this._map = init.data.asMutable().delete(MAP_TYPE);
+    else this._map = IMap(map(([k, v]) => [toImmutableKey(k), toImmutableVal(v)])(init || [])).asMutable();
   }
 
   get(k: K): V {
@@ -138,7 +139,7 @@ export class ValMap<K, V> extends Map<K, V> {
   }
 
   clone() {
-    return ValMap.of<K, V>(this.data);
+    return new ValMap(this);
   }
 }
 
@@ -148,7 +149,8 @@ export class ValSet<K> extends Set<K> {
   constructor(init?: Iterable<K>) {
     super();
     if (init as unknown === BARE) return;
-    this._set = ISet(map<K, IV>(toImmutableKey)(init || [])).asMutable();
+    else if (init instanceof ValSet) this._set = init.data.asMutable().delete(SET_TYPE);
+    else this._set = ISet(map<K, IV>(toImmutableKey)(init || [])).asMutable();
   }
 
   add(v: K) {
@@ -220,6 +222,6 @@ export class ValSet<K> extends Set<K> {
   }
 
   clone() {
-    return ValSet.of<K>(this.data);
+    return new ValSet(this);
   }
 }

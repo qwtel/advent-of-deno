@@ -64,7 +64,7 @@ const distanceToCollectKeys = (world, currentKeys, keysToCollect) => {
         const currentKeysNext = [...currentKeys];
         currentKeysNext[i] = key;
 
-        const keysToCollectNext = keysToCollect.clone().remove(key);
+        const keysToCollectNext = new ValSet(keysToCollect).remove(key);
 
         return d + distanceToCollectKeys(world, currentKeysNext, keysToCollectNext);
       }),
