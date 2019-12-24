@@ -13,14 +13,14 @@ export function map<X, Y>(f: (x: X) => Y) {
 }
 
 // Similar to map, but will yield both x and f(x) as a tuple.
-// Same as `xs => zip2(xs, xs.map(f))`.
+// Same as `xs => zip2(xs, map(f)(xs))`.
 export function zipMap<X, Y>(f: (x: X) => Y) {
   return function*(xs: Iterable<X>): IterableIterator<[X, Y]> {
     for (const x of xs) yield [x, f(x)];
   };
 }
 
-export function zipWith<X, Y>(ys: Iterable<Y>) {
+export function zipWith1<X, Y>(ys: Iterable<Y>) {
   return (xs: Iterable<X>) => zip2(xs, ys);
 }
 
@@ -28,7 +28,9 @@ export function zipWith2<X, Y, Z>(ys: Iterable<Y>, zs: Iterable<Z>) {
   return (xs: Iterable<X>) => zip3(xs, ys, zs);
 }
 
-export function zipWithAll(...yss: Iterable<{}>[]) {
+export function zipWith<X, Y>(ys: Iterable<Y>): (xs: Iterable<X>) => IterableIterator<[X, Y]>;
+export function zipWith<X, Y, Z>(ys: Iterable<Y>, zs: Iterable<Z>): (xs: Iterable<X>) => IterableIterator<[X, Y, Z]>;
+export function zipWith(...yss: Iterable<{}>[]) {
   return (xs: Iterable<{}>) => zip(xs, ...yss);
 }
 
@@ -306,36 +308,26 @@ export function pluck<X>(key: string | number) {
   };
 }
 
-// like pluck, but accepts an iterable of keys
-// TODO: name?
-export function select<X>(keys: Array<string | number>) {
-  return function*(xs: Iterable<Object>): IterableIterator<X | null> {
-    for (const x of xs) {
-      let r = x;
-      for (const k of keys) {
-        r = r != null ? r[k] : undefined;
-      }
-      yield r as (X | null);
-    }
-  };
-}
-
-function pluckFirst<X, Y>() {
-  return function*(xs: Iterable<[X, Y]>): IterableIterator<X | null> {
+export function pluck0<X, Y>() {
+  return function*(xs: Iterable<[X, Y]>): IterableIterator<X> {
     for (const [x] of xs) yield x;
   };
 }
 
-function pluckSecond<X, Y>() {
-  return function*(xs: Iterable<[X, Y]>): IterableIterator<Y | null> {
+export { pluck0 as pluckKeys };
+
+export function pluck1<X, Y>() {
+  return function*(xs: Iterable<[X, Y]>): IterableIterator<Y> {
     for (const [, y] of xs) yield y;
   };
 }
 
+export { pluck1 as pluckValues };
+
 export function unzip2<X, Y>() {
   return function(xs: Iterable<[X, Y]>): [IterableIterator<X>, IterableIterator<Y>] {
     const [xs1, xs2] = tee(xs);
-    return [pluckFirst<X, Y>()(xs1), pluckSecond<X, Y>()(xs2)];
+    return [pluck0<X, Y>()(xs1), pluck1<X, Y>()(xs2)];
   };
 }
 
@@ -353,13 +345,13 @@ export function unzip(n: number = 2) {
   };
 }
 
-export function groupBy<X, K>(f: (x: X) => K) {
+type Constructor<T> = new (...args: any[]) => T;
+export function groupBy<X, K>(f: (x: X) => K, mapImpl: Constructor<Map<K, X[]>> = Map) {
   return function(xs: Iterable<X>): Map<K, X[]> {
-    const res = new Map<K, X[]>();
+    const res = new mapImpl();
     for (const x of xs) {
       const key = f(x);
-      if (!res.has(key)) res.set(key, []);
-      res.get(key).push(x);
+      res.set(key, [...(res.get(key) || []), x]);
     }
     return res;
   };
@@ -577,8 +569,8 @@ export function sort<X>(cf: (a: X, b: X) => number) {
 
 export function reverse<X>() {
   return function*(xs: Iterable<X>): IterableIterator<X> {
-    const ys = [...xs];
-    while (ys.length) yield ys.pop()
+    const xs2 = [...xs];
+    for (let i = xs2.length - 1; i >= 0; i--) yield xs2[i];
   }
 }
 

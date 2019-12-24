@@ -16,7 +16,7 @@ export function is(a: any, b: any) {
 }
 
 export const fromImmutableKey = <K>(v: IV): K => {
-  if (v?.isList?.()) return [...map(fromImmutableKey)(v)] as unknown as K;
+  if ((IList as any).isList(v)) return [...map(fromImmutableKey)(v)] as unknown as K;
   if (v?.has?.(MAP_TYPE)) return ValMap.of(v) as unknown as K;
   if (v?.has?.(SET_TYPE)) return ValSet.of(v) as unknown as K;
   // TODO: Plain Object / Record
@@ -33,7 +33,7 @@ export const toImmutableKey = <K>(v: K): IV => {
 
 // Same as `fromImmutableKey`, but will leave unknown types untouched.
 export const fromImmutableVal = <K>(v: IV): K => {
-  if (v?.isList?.()) return [...map(fromImmutableKey)(v)] as unknown as K;
+  if ((IList as any).isList(v)) return [...map(fromImmutableKey)(v)] as unknown as K;
   if (v?.has?.(MAP_TYPE)) return ValMap.of(v) as unknown as K;
   if (v?.has?.(SET_TYPE)) return ValSet.of(v) as unknown as K;
   // TODO: Plain Object / Record

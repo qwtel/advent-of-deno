@@ -1,10 +1,10 @@
-import { pipe, map, min, filter, pairwise, flatten, toArray, sum, flatMap, product2, concat2, toSet } from "./iter.ts";
+import { pipe, map, min, filter, pairwise, flatten, toArray, sum, flatMap, product2, concat2, zipMap } from "./iter.ts";
 import { findAndRemove } from "./other.ts";
 import { ValMap, ValSet, is } from "./values.ts";
 
 export type Edge<X> = [X, X];
 export type WeightedEdge<X> = [X, X, number];
-export type MaybeWeightedEdge<X> = [X, X, number?];
+export type MaybeWeightedEdge<X> = Edge<X> | WeightedEdge<X>;
 
 export class Graph<X> {
   vertices: ValSet<X>;
@@ -22,8 +22,8 @@ export class Graph<X> {
       data = [...data];
       const edges = pipe(data, map(([a, b]) => [a, b] as Edge<X>), toArray());
       this.vertices = new ValSet([...pipe(edges, flatten<X>())]);
-      this.dirs = new ValMap(pipe(this.vertices, map(v => [v, new ValSet()] as [X, ValSet<X>])));
-      this.deps = new ValMap(pipe(this.vertices, map(v => [v, new ValSet()] as [X, ValSet<X>])));
+      this.dirs = new ValMap(pipe(this.vertices, zipMap(() => new ValSet<X>())));
+      this.deps = new ValMap(pipe(this.vertices, zipMap(() => new ValSet<X>())));
       this.weights = new ValMap();
 
       for (const [a, b, w] of data) {
