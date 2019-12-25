@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
-import { read, print } from '../util/aoc.ts'
+import { read } from '../util/aoc.ts'
 import { Array2D, bfs } from '../util/array2d.ts'
 import { ValMap, ValSet } from '../util/values.ts'
 import { pipe, filter, map, min, rangeX, flatMap, pluck, filterValues, product2, toArray } from '../util/iter.ts'
