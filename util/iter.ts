@@ -1,6 +1,6 @@
 // My little iterator library ("lilit")
 
-import { tee, teeN, iterator } from './iter-funcs.ts';
+import { tee, teeN, iterator, Constructor } from './iter-funcs.ts';
 
 
 
@@ -345,7 +345,6 @@ export function unzip(n: number = 2) {
   };
 }
 
-type Constructor<T> = new (...args: any[]) => T;
 export function groupBy<X, K>(f: (x: X) => K, mapImpl: Constructor<Map<K, X[]>> = Map) {
   return function(xs: Iterable<X>): Map<K, X[]> {
     const res = new mapImpl();
@@ -924,6 +923,14 @@ export function* interleave(...xss: Iterable<{}>[]): IterableIterator<{}> {
       else yield value;
     }
   }
+}
+
+export function frequencies<X>(iterable: Iterable<X>, mapImpl: Constructor<Map<X, number>> = Map) {
+    const fs = new mapImpl();
+    for (const item of iterable) {
+        fs.set(item, 1 + (fs.get(item) || 0));
+    }
+    return fs;
 }
 
 // https://github.com/Microsoft/TypeScript/issues/17718#issuecomment-402931751

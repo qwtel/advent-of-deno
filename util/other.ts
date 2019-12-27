@@ -1,11 +1,3 @@
-export function frequencies<X>(iterable: Iterable<X>) {
-    const fs = new Map<X, number>();
-    for (const item of iterable) {
-        fs.set(item, 1 + (fs.get(item) || 0));
-    }
-    return fs;
-}
-
 export function findAndRemove<X>(arr: X[], f: (x: X) => boolean) {
     const i = arr.findIndex(f);
     return i === -1

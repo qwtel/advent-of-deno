@@ -76,7 +76,7 @@ export class ValSet<K> extends Set<K> {
     return this;
   }
 
-  static of<K>(data: IV) {
+  static fromImmutable<K>(data: IV) {
     const x = new ValSet<K>();
     x._set = data.asMutable().delete(SET_TYPE);
     return x;

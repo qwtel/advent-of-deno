@@ -13,25 +13,28 @@ export class Graph<X> {
   weights: ValMap<[X, X], number>;
 
   constructor(data: Iterable<MaybeWeightedEdge<X>> | Graph<X>) {
-    if (data instanceof Graph) {
-      this.vertices = new ValSet(data.vertices);
-      this.dirs = new ValMap(data.dirs);
-      this.deps = new ValMap(data.deps);
-      this.weights = new ValMap(data.weights);
-    } else {
-      data = [...data];
-      const edges = pipe(data, map(([a, b]) => [a, b] as Edge<X>), toArray());
-      this.vertices = new ValSet([...pipe(edges, flatten<X>())]);
-      this.dirs = new ValMap(pipe(this.vertices, zipMap(() => new ValSet<X>())));
-      this.deps = new ValMap(pipe(this.vertices, zipMap(() => new ValSet<X>())));
-      this.weights = new ValMap();
+    if (data instanceof Graph) return this._copyFrom(data);
 
-      for (const [a, b, w] of data) {
-        this.dirs.set(a, this.dirs.get(a).add(b));
-        this.deps.set(b, this.deps.get(b).add(a));
-        this.weights.set([a, b], w ?? 1);
-      }
+    const data2 = [...data];
+    const edges = pipe(data2, map(([a, b]) => [a, b] as Edge<X>), toArray());
+    this.vertices = new ValSet([...pipe(edges, flatten<X>())]);
+    this.dirs = new ValMap(pipe(this.vertices, zipMap(() => new ValSet<X>())));
+    this.deps = new ValMap(pipe(this.vertices, zipMap(() => new ValSet<X>())));
+    this.weights = new ValMap();
+
+    for (const [a, b, w] of data2) {
+      this.dirs.set(a, this.dirs.get(a).add(b));
+      this.deps.set(b, this.deps.get(b).add(a));
+      this.weights.set([a, b], w ?? 1);
     }
+  }
+
+  private _copyFrom(data: Graph<X>) {
+    this.vertices = new ValSet(data.vertices);
+    this.dirs = new ValMap(data.dirs);
+    this.deps = new ValMap(data.deps);
+    this.weights = new ValMap(data.weights);
+    return this;
   }
 
   get edges(): ValSet<Edge<X>> {

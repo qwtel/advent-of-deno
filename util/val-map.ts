@@ -12,7 +12,7 @@ export class ValMap<K, V> extends Map<K, V> {
     super();
     this._map = init instanceof ValMap 
       ? init.data.asMutable().delete(MAP_TYPE)
-      : IMap(map(([k, v]) => [toImmutableKey(k), toImmutableVal(v)])(init || [])).asMutable();
+      : IMap(map(([k, v]) => [toImmutableKey(k), toImmutableVal(v)] as [IV, IV])(init || [])).asMutable();
   }
 
   get(k: K): V {
@@ -80,7 +80,7 @@ export class ValMap<K, V> extends Map<K, V> {
     return this;
   }
 
-  static of<K, V>(data: IV) {
+  static fromImmutable<K, V>(data: IV) {
     const x = new ValMap<K, V>();
     x._map = data.asMutable().delete(MAP_TYPE);
     return x;
