@@ -583,10 +583,18 @@ export function sortScan<X>(cf: (a: X, b: X) => number) {
   };
 }
 
-export function flatten<X>() {
-  return function*(xss: Iterable<Iterable<X>>): IterableIterator<X> {
-    for (const xs of xss) for (const x of xs) yield x;
-  };
+export function flatten<X>(separator?: X) {
+  return separator == null
+    ? function*(xss: Iterable<Iterable<X>>): IterableIterator<X> {
+        for (const xs of xss) for (const x of xs) yield x;
+      }
+    : function*(xss: Iterable<Iterable<X>>): IterableIterator<X> {
+        let skippedFirst = false;
+        for (const xs of xss) {
+          if (skippedFirst) yield separator; else skippedFirst = true;
+          for (const x of xs) yield x;
+        }
+      };
 }
 
 export { flatten as flat }

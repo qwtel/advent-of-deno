@@ -6,7 +6,7 @@ bindAll(console);
 bindAll(Math);
 // TODO: others?
 
-function print(...args: any[]) {
+export function print(...args: any[]) {
     for (const obj of args) {
         console.dir(obj, { depth: Number.POSITIVE_INFINITY });
     }
