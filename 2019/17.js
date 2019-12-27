@@ -15,7 +15,7 @@ const input = (await read())
   .split(',')
   .map(Number)
 
-const arr2d = Array2D.fromString(pipe(run(input), map(String.fromCharCode), Array.from, x => x.join('')))
+const arr2d = Array2D.fromString(pipe(run(input, []), cs => String.fromCharCode(...cs)));
 
 // 1
 pipe(
@@ -25,11 +25,11 @@ pipe(
   map(([[x, y]]) => x * y),
   sum(),
   console.log,
-)
+);
 
 // 2
-const [N, S, W, E] = [[0, -1], [0, 1], [-1, 0], [1, 0]]
-const [L, R] = ['L', 'R']
+const [N, S, W, E] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+const [L, R] = ['L', 'R'];
 
 const turnMap = new ValMap([
   [[N, E], R],
@@ -72,8 +72,7 @@ function* modBfs(world, start, goals, obstacles) {
 }
 
 const start = arr2d.findPoint(_ => _ === '^');
-const end = arr2d.findPoint((x, p, a) => x === '#' && pipe(a.neighbors4(p), map(_ => a.get(_)), filter(_ => _ !== '.'), count()) === 1);
-
+// const end = arr2d.findPoint((x, p, a) => x === '#' && pipe(a.neighbors4(p), map(_ => a.get(_)), filter(_ => _ !== '.'), count()) === 1);
 const [, path] = pipe(modBfs(arr2d, start, '#', '.'), last());
 
 // Building a list of instructions on how to traverse the entire grid of the form `[leftOrRight, nrOfSteps]`.
@@ -93,8 +92,6 @@ const instructions = pipe(
   toArray(),
 );
 
-const toASCII = string => pipe(string, map(_ => _.charCodeAt(0)), toArray());
-
 // Builds a set of all sub-sequences that have an ASCII length of <= 20.
 // The sub sequences are strings joined with `,`, e.g. `R,8,L,10`.
 // The name dict is in reference to the "words" each sub-sequence represents.
@@ -102,7 +99,7 @@ function buildDict(instructions) {
   const dict = new ValSet();
   for (const i of range(1, instructions.length - 1)) {
     for (const seq of pipe(instructions, grouped(i, 1), map(_ => _.join()))) {
-      if (toASCII(seq).length <= 20) {
+      if (seq.length <= 20) {
         dict.add(seq)
       }
     }
@@ -116,7 +113,8 @@ function solve() {
   // We still have to use `RegExp` trick to get a 'replace all'...
   const instString = instructions.join();
 
-  for (const [a, b, c] of combinations3(buildDict(instructions))) {
+  const dict = buildDict(instructions)
+  for (const [a, b, c] of combinations3(dict)) {
     const main = instString
       .replace(new RegExp(a, 'g'), 'A')
       .replace(new RegExp(b, 'g'), 'B')
@@ -129,6 +127,8 @@ function solve() {
 
 const NEWLINE = '\n'.charCodeAt(0);
 
+const toASCII = string => pipe(string, map(_ => _.charCodeAt(0)), toArray());
+
 input[0] = 2;
 
 pipe(
@@ -137,7 +137,6 @@ pipe(
   map(toASCII),
   flatten(NEWLINE),
   endWith(NEWLINE),
-  toArray(),
   _ => run(input, _),
   last(),
   console.log,
