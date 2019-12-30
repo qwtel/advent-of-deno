@@ -3,3 +3,5 @@
 node_modules
 playground.mjs
 2018
+package*
+/*.js

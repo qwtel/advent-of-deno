@@ -24,7 +24,7 @@ export class Array2D<X> {
     }
 
     static fromString(s: string, bounds?: Bounds) {
-        return Array2D.of(s.trim().split('\n').map(_ => _.split('')), bounds)
+        return Array2D.of(s.split('\n').map(_ => _.split('')), bounds)
     }
 
     static fromMinMax<X>([[minX, maxX], [minY, maxY]]: Bounds, fill: X) {

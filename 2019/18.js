@@ -3,7 +3,7 @@
 import { read } from '../util/aoc.ts'
 import { Array2D, bfs } from '../util/array2d.ts'
 import { ValMap, ValSet } from '../util/values.ts'
-import { pipe, filter, map, min, rangeX, flatMap, pluck, filterValues, product2, toArray } from '../util/iter.ts'
+import { pipe, filter, map, min, rangeX, flatMap, pluck1, filterValues, product2, toArray } from '../util/iter.ts'
 import { Graph } from '../util/graph2.ts'
 import { add } from '../util/vec2d.ts'
 (async () => {
@@ -21,7 +21,7 @@ if (env.DEBUG) print(world2d.toString())
 function compactWorld(world2d) {
   const poi = pipe(world2d.entries(), filterValues(v => !'.#'.includes(v)), toArray());
   return new Graph(pipe(poi, flatMap(([startPos, from]) => {
-    const goals = pipe(poi, pluck(1), filter(_ => _ !== from), toArray())
+    const goals = pipe(poi, pluck1(), filter(_ => _ !== from), toArray())
     return pipe(
       bfs(world2d, startPos, goals, '.'),
       map(([to, dist]) => [from, to, dist]),
@@ -84,7 +84,7 @@ console.log(distanceToCollectKeys(world, ['@'], keysToCollect));
 const pattern = Array2D.fromString(`
 @#$
 ###
-%#&`, [[-1, -1], [2, 2]]);
+%#&`.trim(), [[-1, -1], [2, 2]]);
 
 const p = world2d.findPoint(x => x === '@');
 for (const dp of product2(rangeX(-1, 1), rangeX(-1, 1))) {

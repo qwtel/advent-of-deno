@@ -2,7 +2,7 @@
 
 import { read } from '../util/aoc.ts';
 import { ValMap } from '../util/values.ts';
-import { pipe,  map, every, sum } from '../util/iter.ts';
+import { pipe, map, every, sum } from '../util/iter.ts';
 import { isIn, ceil } from '../util/other.ts';
 import { Graph } from '../util/graph2.ts';
 (async () => {
@@ -30,7 +30,7 @@ for (const [ingredients, [[n, result]]] of reactions) {
 // const swap = ([a, b]) => [b, a];
 // const minIncrements = new ValMap([
 //   ['ORE', 1],
-//   ...pipe(reactions, pluck(1), flatten(), map(swap)),
+//   ...pipe(reactions, pluck1(), flatten(), map(swap)),
 // ])
 
 // const edges = [...pipe(

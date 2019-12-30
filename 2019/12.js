@@ -3,7 +3,7 @@
 import immutable, { fromJS } from 'immutable';
 import { read } from '../util/aoc.ts';
 import { lcm } from '../util/other.ts';
-import { pipe, map, toArray, constantly, sum, take, last, pluck, unzip3, scan, zip2, zip3, unzip2, findIndex } from '../util/iter.ts';
+import { pipe, map, toArray, constantly, sum, take, last, pluck0, unzip3, scan, zip2, zip3, unzip2, findIndex } from '../util/iter.ts';
 (async () => {
 
 const abs = (vec) => pipe(vec, map(Math.abs), sum());
@@ -26,8 +26,7 @@ function solve(positionsOnAxis) {
     scan(posVelTuples => posVelTuples.map(([pos, vel]) => {
       const vel2 = pipe(
         posVelTuples,
-        pluck(0),
-        map(p => Math.sign(p - pos)),
+        map(([p]) => Math.sign(p - pos)),
         sum(vel),
       );
       return [pos + vel2, vel2];
