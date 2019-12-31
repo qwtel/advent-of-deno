@@ -76,7 +76,7 @@ function getLabel2(maze, [x, y], v1) {
     const [p2, v2] = pipe(maze.neighbors4([x, y]), zipMap(_ => maze.get(_)), filterValues(_ => aToZ.includes(_)), first());
     const label = (len(p2) > len([x, y]) ? [v1, v2] : [v2, v1]).join('');
     const isOutside = x <= 2 || x >= maze.lengthX - 3 || y <= 2 || y >= maze.lengthY - 3;
-    const marker = isOutside ? ',u' : ',d'
+    const marker = isOutside ? ',%,u' : ',%,d'
     return label + (['AA', 'ZZ'].includes(label) ? '' : marker);
   }
   return ' ';
@@ -86,8 +86,25 @@ const labeled2 = maze.map((x, p) => aToZ.includes(x) ? getLabel2(maze, p, x) : x
 const g2 = compactWorld(labeled2);
 
 const extractLevel = u => {
-  const match = u && u.match(/(\d+)$/)
-  return match ? Number(match[1]) : 0;
+  const [num] = u.match(/\d+/)  || [];
+  const [dir] = u.match(/[ud]/) || [];
+  switch (dir) { 
+    case 'd': return Number(num) + 1;
+    case 'u': return Number(num);
+    default: return 0;
+  }
+}
+
+const flip = (v) => {
+  if (v.match(/d/)) return v.replace(/d/, 'u').replace(/\d+/, '%');
+  else if (v.match(/u/)) return v.replace(/u/, 'd').replace(/\d+/, '%');
+  return v;
+}
+
+const buzz = (v, level) => {
+  if (v.match(/d/)) return v.replace(/%/, level);
+  else if (v.match(/u/)) return v.replace(/%/, level - 1);
+  return v;
 }
 
 function dijkstraMod2(g, source, target, debug) {
@@ -98,30 +115,24 @@ function dijkstraMod2(g, source, target, debug) {
   const done = new ValSet();
 
   while (q.length) {
-    // console.log(q)
     const shortest = pipe(q, map(v => dist.get(v)), min());
     const u = findAndRemove(q, v => dist.get(v) === shortest);
 
-    if (u === target) return [u, shortest - 1, unwind(prev, u), unwind(prev, u).length]; // Removing the extra step from 'ZZ'
+    if (u === target) return [u, shortest - 1, unwind(prev, u)]; // Removing the extra step from 'ZZ'
 
+    const uNext = flip(u);
     const level = extractLevel(u);
-    const prevL = extractLevel(prev.get(u))
-    const dir = level - prevL > 0 ? 'u' : 'd';
-    // if (level === 0) console.log(u, dir, shortest)
-    if (debug) console.log(u, dir)
-    // yield u;
     const candidates = pipe(
-      g.outgoingEdges(u.replace(/\d+/, dir)),
+      g.outgoingEdges(uNext),
       filterSecond(v => !done.has(v)),
       filterSecond(v => level === 0 
-        ? !v.match(/,u$/)
+        ? !v.match(/u/)
         : !v.match(/(AA|ZZ)/)
       ),
-      map(([, v, w]) => [v.replace(/u$/, level - 1).replace(/d$/, level + 1), w]),
+      map(([, v, w]) => [buzz(v, level), w]),
     );
 
     for (const [v, weight] of candidates) {
-      if (debug) console.log(`--> ${v} ${weight} (${dist.get(u) + weight + 1})`)
       const alt = dist.get(u) + weight + 1; // Accounting for the fact that taking a portal takes 1 extra step
       if (alt < (dist.has(v) ? dist.get(v) : Number.POSITIVE_INFINITY)) {
         dist.set(v, alt);
@@ -137,44 +148,9 @@ function dijkstraMod2(g, source, target, debug) {
   }
 }
 
-// console.log('' + maze)
-// console.log('' + labeled2)
-// print(dijkstraMod2(g2, 'AA', 'ZZ', true));
-// print(dijkstraMod2(g2, 'ZZ', 'AA', true));
+if (env.DEBUG) console.log('' + labeled2);
+if (env.DEBUG) console.log(g2);
 
-const x = [[ "AA", "XF,1" ], [ "XF,1", "CK,2" ], [ "CK,2", "ZH,3" ], [ "ZH,3", "WB,4" ], [ "WB,4", "IC,5" ], [ "IC,5", "RF,6" ], [ "RF,6", "NM,7" ], [ "NM,7", "LP,8" ], [ "LP,8", "FD,9" ], [ "FD,9", "XQ,10" ], [ "XQ,10", "WB,9" ], [ "WB,9", "ZH,8" ], [ "ZH,8", "CK,7" ], [ "CK,7", "XF,6" ], [ "XF,6", "OA,5" ], [ "OA,5", "CJ,4" ], [ "CJ,4", "RE,3" ], [ "RE,3", "IC,4" ], [ "IC,4", "RF,5" ], [ "RF,5", "NM,6" ], [ "NM,6", "LP,7" ], [ "LP,7", "FD,8" ], [ "FD,8", "XQ,9" ], [ "XQ,9", "WB,8" ], [ "WB,8", "ZH,7" ], [ "ZH,7", "CK,6" ], [ "CK,6", "XF,5" ], [ "XF,5", "OA,4" ], [ "OA,4", "CJ,3" ], [ "CJ,3", "RE,2" ], [ "RE,2", "XQ,1" ], [ "XQ,1", "FD,0" ], [ "FD,0", "ZZ" ]]
-for (const [[prev], [curr, next]] of pipe(x, map(reverse()), reverse(), startWith(['ZZ']), pairwise())) {
-  const level = extractLevel(curr)
-  const prevL = extractLevel(prev)
-  const dir = level - prevL > 0 ? 'u' : 'd';
-  console.log(`Curr: ${curr} Next: ${next}`)
-  const candidates = pipe(
-    g2.outgoingEdges(curr.replace(/\d+/, dir)),
-    // filterSecond(v => !done.has(v)),
-    filterSecond(v => level === 0 
-      ? !v.match(/,u$/)
-      : !v.match(/(AA|ZZ)/)
-    ),
-    map(([, v, w]) => [v.replace(/u$/, level - 1).replace(/d$/, level + 1), w]),
-  );
-  console.log(...candidates)
-}
-
-// function getCandid(u) {
-//   const level = extractLevel(u);
-//   const prevL = extractLevel(prev.get(u))
-//   const dir = level - prevL > 0 ? 'u' : 'd';
-//   // if (level === 0) console.log(u, dir, shortest)
-//   if (debug) console.log(u, dir)
-//   // yield u;
-//   const candidates = pipe(
-//     g.outgoingEdges(u.replace(/\d+/, dir)),
-//     filterSecond(v => level === 0 
-//       ? !v.match(/,u$/)
-//       : !v.match(/(AA|ZZ)/)
-//     ),
-//     map(([, v, w]) => [v.replace(/u$/, level - 1).replace(/d$/, level + 1), w]),
-//   );
-// }
+print(dijkstraMod2(g2, 'AA', 'ZZ')[1]);
 
 })()
