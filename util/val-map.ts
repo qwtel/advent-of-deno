@@ -96,6 +96,10 @@ export class ValMap<K, V> extends Map<K, V> {
     return new ValMap(this);
   }
 
+  copy(): ValMap<K, V> {
+    return new ValMap(this);
+  }
+
   equals(b: any) {
     return is(this, b);
   }

@@ -61,12 +61,16 @@ export class Array2D<X> {
         return [i + minX, j + minY];
     }
 
-    clone(): Array2D<X> {
+    copy(): Array2D<X> {
         const a = new Array2D<X>();
         const { array, bounds } = this; // implicit clone
         a._array = array;
         a._bounds = bounds;
         return a;
+    }
+
+    clone(): Array2D<X> {
+        return this.copy();
     }
 
     *[Symbol.iterator](): IterableIterator<X> {

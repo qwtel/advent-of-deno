@@ -16,19 +16,6 @@ const world2d = Array2D.fromString(await read())
 
 if (env.DEBUG) print(world2d.toString())
 
-// Takes a 2d representation, extracts the points of interest (everything that's not a wall `#` or path `.`)
-// and builds a graph of the shortest paths between them.
-function compactWorld(world2d) {
-  const poi = pipe(world2d.entries(), filterValues(v => !'.#'.includes(v)), toArray());
-  return new Graph(pipe(poi, flatMap(([startPos, from]) => {
-    const goals = pipe(poi, pluck1(), filter(_ => _ !== from), toArray())
-    return pipe(
-      bfs(world2d, startPos, goals, '.'),
-      map(([to, dist]) => [from, to, dist]),
-    );
-  })));
-}
-
 // Basically BFS, but over our compacted graph.
 // Takes into account the key unlock-door logic.
 function* reachableKeys(world, currentKey, keysToCollect) {
@@ -75,9 +62,10 @@ const distanceToCollectKeys = (world, currentKeys, keysToCollect) => {
   return result;
 }
 
-const world = compactWorld(world2d);
-const keysToCollect = new ValSet(pipe(world.vertices, filter(_ => _ !== '@' && isLowerCase(_))));
-console.log(distanceToCollectKeys(world, ['@'], keysToCollect));
+const poi = new ValSet(pipe(world2d, filter(v => !'.#'.includes(v))));
+const g = world2d.compactWorld(poi, '.');
+const keysToCollect = new ValSet(pipe(g.vertices, filter(_ => _ !== '@' && isLowerCase(_))));
+console.log(distanceToCollectKeys(g, ['@'], keysToCollect));
 
 // 2
 const pattern = Array2D.fromString(`
@@ -90,10 +78,10 @@ for (const dp of product2(rangeX(-1, 1), rangeX(-1, 1))) {
   world2d.set(add(p, dp), pattern.get(dp));
 }
 
-if (env.DEBUG) console.log('' + world2d)
+if (env.DEBUG) console.log('' + world2d);
 
-const world2 = compactWorld(world2d);
-console.log(distanceToCollectKeys(world2, ['@', '$', '%', '&'], keysToCollect));
+const g2 = world2d.compactWorld([...poi, '$', '%', '&'], '.');
+console.log(distanceToCollectKeys(g2, ['@', '$', '%', '&'], keysToCollect));
 
 
 })()

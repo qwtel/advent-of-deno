@@ -92,6 +92,10 @@ export class ValSet<K> extends Set<K> {
     return new ValSet(this);
   }
 
+  copy(): ValSet<K> {
+    return new ValSet(this);
+  }
+
   equals(b: any) {
     return is(this, b);
   }
