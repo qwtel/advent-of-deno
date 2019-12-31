@@ -1,13 +1,11 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read, print } from '../util/aoc.ts'
-import { Array2D, bfs } from '../util/array2d.ts'
-import { eq, sub, ne, len } from '../util/vec2d.ts'
-import { pipe, min, filter, map, sum, every, flatMap, pluck1, count, zipMap, filterValues, pairwise, first, groupedUntilChanged, startWith, grouped, endWith, combinations3, range, flatten, last, toArray, rangeX, subscribe, some, forEach, mapValues, filterSecond, mapSecond, concat2, take, distinct, reverse, find } from '../util/iter.ts'
-import { run } from './intcode.js'
-import { ValMap, ValSet, is } from '../util/values.ts'
-import { Graph, dijkstra } from '../util/graph2.ts';
-import { findAndRemove } from '../util/other.ts';
+import { Array2D } from '../util/array2d.ts'
+import { len } from '../util/vec2.ts'
+import { pipe, filter, map, rangeX, some, filterSecond, find } from '../util/iter.ts'
+import { ValSet } from '../util/values.ts'
+import { dijkstra } from '../util/graph2.ts';
 (async () => {
 
 const env = Deno.env()

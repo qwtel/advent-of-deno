@@ -1,11 +1,10 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
-import { read } from '../util/aoc.ts'
-import { Array2D, bfs } from '../util/array2d.ts'
+import { read, print } from '../util/aoc.ts'
+import { Array2D } from '../util/array2d.ts'
 import { ValMap, ValSet } from '../util/values.ts'
-import { pipe, filter, map, min, rangeX, flatMap, pluck1, filterValues, product2, toArray } from '../util/iter.ts'
-import { Graph } from '../util/graph2.ts'
-import { add } from '../util/vec2d.ts'
+import { pipe, filter, map, min, rangeX, product2 } from '../util/iter.ts'
+import { add } from '../util/vec2.ts'
 (async () => {
 
 const env = Deno.env();

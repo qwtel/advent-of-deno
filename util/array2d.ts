@@ -1,9 +1,8 @@
 import { ValMap, ValSet } from "./values.ts";
-import { pipe, unzip2, minMax, find, product2, rangeX, filter, map, filterValues, toArray, flatMap, pluck1, zipMap } from "./iter.ts";
+import { pipe, unzip2, minMax, find, product2, rangeX, filter, map, filterValues, flatMap, zipMap } from "./iter.ts";
 import { addTo, mkNe } from "./vec2.ts";
 import { last } from "./other.ts";
-import { Graph, WeightedEdge } from "./graph2.ts";
-import { is } from "./val-funcs.ts";
+import { Graph } from "./graph2.ts";
 
 export type Point = [number, number];
 export type Bounds = [[number, number], [number, number]];
