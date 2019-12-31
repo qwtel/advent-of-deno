@@ -122,25 +122,16 @@ export class Array2D<X> {
         return [this._array.length, this._array[0].length];
     }
 
-    get size(): number {
-        return this._array.length * this._array[0].length;
-    }
+    get size(): number { return this._array.length * this._array[0].length; }
+    get sizeX(): number { return this._array[0].length; } 
+    get sizeY(): number { return this._array.length; }
 
-    get sizeX(): number {
-        return this._array[0].length;
-    }
+    get length(): number { return this._array.length * this._array[0].length; }
+    get lengthX(): number { return this._array[0].length; } 
+    get lengthY(): number { return this._array.length; }
 
-    get sizeY(): number {
-        return this._array.length;
-    }
-
-    get array(): X[][] {
-        return this._array.map(row => [...row]);
-    }
-
-    get bounds(): Bounds {
-        return this._bounds.map(([x, y]) => [x, y]) as Bounds;
-    }
+    get array(): X[][] { return this._array.map(row => [...row]); }
+    get bounds(): Bounds { return this._bounds.map(([x, y]) => [x, y]) as Bounds; }
 
     transpose(): Array2D<X> {
         const a = new Array2D<X>();
@@ -154,6 +145,8 @@ export class Array2D<X> {
         a._array.forEach(row => row.reverse())
         return a;
     }
+
+    rotateCW() { return this.rotate(); }
 
     rotateCCW(): Array2D<X> {
         const a = this.clone();
@@ -219,6 +212,8 @@ export class Array2D<X> {
         for (const r of this.rows()) s += r.join('') + '\n';
         return s;
     }
+
+    // [Deno.customInspect]() { return this.toString(); }
 }
 
 export function* bfs<X>(

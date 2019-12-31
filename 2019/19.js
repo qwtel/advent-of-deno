@@ -45,7 +45,7 @@ function approx2(precision) {
 
   // console.log('' + world)
 
-  const lastRow = world._array[0];
+  const lastRow = world.array[0];
   const x1 = pipe(lastRow, findIndex(_ => _ === '#'))
   const x2 = pipe(lastRow, findLastIndex(_ => _ === '#'))
   if (env.DEBUG) console.log('x', x1, x2)

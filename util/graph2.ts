@@ -218,7 +218,7 @@ export class Graph<X> {
   }
 }
 
-function unwind<X>(prev: Map<X, X>, target: X) {
+export function unwind<X>(prev: Map<X, X>, target: X) {
   const path: X[] = [];
   let u = target;
   while (u) {

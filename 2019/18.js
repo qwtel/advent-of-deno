@@ -48,6 +48,8 @@ function* reachableKeys(world, currentKey, keysToCollect) {
   }
 }
 
+const set = (a, i, v) => { a[i] = v; return a };
+
 const cache = new ValMap();
 const distanceToCollectKeys = (world, currentKeys, keysToCollect) => {
   if (keysToCollect.size === 0) return 0;
@@ -60,11 +62,8 @@ const distanceToCollectKeys = (world, currentKeys, keysToCollect) => {
     map(([i, currentKey]) => pipe(
       reachableKeys(world, currentKey, keysToCollect),
       map(([key, d]) => {
-        const currentKeysNext = [...currentKeys];
-        currentKeysNext[i] = key;
-
-        const keysToCollectNext = new ValSet(keysToCollect).remove(key);
-
+        const currentKeysNext = set([...currentKeys], i, key);
+        const keysToCollectNext = keysToCollect.clone().remove(key);
         return d + distanceToCollectKeys(world, currentKeysNext, keysToCollectNext);
       }),
       min(),
