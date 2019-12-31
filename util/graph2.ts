@@ -5,6 +5,7 @@ import { ValMap, ValSet, is } from "./values.ts";
 export type Edge<X> = [X, X];
 export type WeightedEdge<X> = [X, X, number];
 export type MaybeWeightedEdge<X> = Edge<X> | WeightedEdge<X>;
+export type Path<X> = Edge<X>[];
 
 export class Graph<X> {
   vertices: ValSet<X>;
@@ -95,75 +96,9 @@ export class Graph<X> {
 
   }
 
-  dijkstra(source: X, target: X) {
-    const q = [];
-    const dist = new ValMap<X, number>();
-    const prev = new ValMap<X, X>();
-
-    for (const v of this.vertices) {
-      dist.set(v, Number.POSITIVE_INFINITY);
-      prev.set(v, undefined);
-      q.push(v);
-    }
-    dist.set(source, 0);
-
-    while (q.length) {
-      // slooooooooooooooooooooow
-      const shortest = pipe(q, map(_ => dist.get(_)), min());
-      const u = findAndRemove(q, v => is(dist.get(v), shortest));
-
-      if (is(u, target)) return unwind(prev, target);
-
-      for (const v of pipe(this.outgoing(u), filter(v => q.includes(v)))) {
-        const alt = dist.get(u) + this.weight([u, v]);
-        if (alt < dist.get(v)) {
-          dist.set(v, alt);
-          prev.set(v, u);
-        }
-      }
-    }
-
-    // TODO: not found?
+  dijkstra(source: X, target: X): [X, number, Path<X>] {
+    return dijkstra(this, source, target);
   }
-
-  // dijkstra2(source: string, target: string) {
-  //   const dist = new Map([[source, 0]]);
-  //   const prev = new Map<string, string>();
-  //   const q = new PriorityQueue([], ([a], [b]) => b - a)
-
-  //   for (const v of this.vertices) {
-  //     if (v !== source) dist.set(v, Number.POSITIVE_INFINITY)
-  //     prev.set(v, undefined)
-  //     q.push([dist.get(v), v])
-  //   }
-
-  //   for (const u of q) {
-  //     for (const v of pipe(this.outgoing(u), filter(v => q.includes(v)))) {
-  //   }
-  // }
-  // 1  function Dijkstra(Graph, source):
-  // 2      dist[source] ← 0                           // Initialization
-  // 3
-  // 4      create vertex priority queue Q
-  // 5
-  // 6      for each vertex v in Graph:           
-  // 7          if v ≠ source
-  // 8              dist[v] ← INFINITY                 // Unknown distance from source to v
-  // 9          prev[v] ← UNDEFINED                    // Predecessor of v
-  // 10
-  // 11         Q.add_with_priority(v, dist[v])
-  // 12
-  // 13
-  // 14     while Q is not empty:                      // The main loop
-  // 15         u ← Q.extract_min()                    // Remove and return best vertex
-  // 16         for each neighbor v of u:              // only v that are still in Q
-  // 17             alt ← dist[u] + length(u, v) 
-  // 18             if alt < dist[v]
-  // 19                 dist[v] ← alt
-  // 20                 prev[v] ← u
-  // 21                 Q.decrease_priority(v, alt)
-  // 22
-  // 23     return dist, prev
 
 
   // MUTATION
@@ -218,7 +153,48 @@ export class Graph<X> {
   }
 }
 
-export function unwind<X>(prev: Map<X, X>, target: X) {
+type DijkstraState<X> = { q: X[]; dist: ValMap<X, number>; prev: ValMap<X, X>; seen: ValSet<X>; done: ValSet<X> };
+export function dijkstra<X>(
+  g: Graph<X>,
+  source: X,
+  target: X,
+  outgoingEdges: (g: Graph<X>, u: X, state?: DijkstraState<X>) => Iterable<WeightedEdge<X>> = (g, u) => g.outgoingEdges(u),
+): [X, number, Path<X>] | null {
+  const q = [source];
+  const dist = new ValMap([[source, 0]]);
+  const prev = new ValMap<X, X>();
+  const seen = new ValSet<X>();
+  const done = new ValSet<X>();
+
+  while (q.length) {
+    const shortest = pipe(q, map(v => dist.get(v)), min());
+    const u = findAndRemove(q, v => dist.get(v) === shortest);
+
+    if (is(u, target)) return [u, shortest, unwind(prev, u)];
+
+    for (const [, v, weight] of outgoingEdges(g, u, { q, dist, prev, seen, done })) {
+      if (done.has(v)) continue;
+
+      const alt = dist.get(u) + weight;
+      const bst = dist.get(v) ?? Number.POSITIVE_INFINITY;
+      if (alt < bst) {
+        dist.set(v, alt);
+        prev.set(v, u);
+      }
+
+      if (!seen.has(v)) {
+        seen.add(v);
+        q.push(v);
+      }
+    }
+
+    done.add(u);
+  }
+
+  return null;
+}
+
+export function unwind<X>(prev: Map<X, X>, target: X): Path<X> {
   const path: X[] = [];
   let u = target;
   while (u) {

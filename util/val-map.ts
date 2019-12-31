@@ -92,7 +92,7 @@ export class ValMap<K, V> extends Map<K, V> {
     return map.set(MAP_TYPE);
   }
 
-  clone() {
+  clone(): ValMap<K, V> {
     return new ValMap(this);
   }
 

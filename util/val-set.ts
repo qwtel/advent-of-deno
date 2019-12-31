@@ -88,7 +88,7 @@ export class ValSet<K> extends Set<K> {
     return set.add(SET_TYPE);
   }
 
-  clone() {
+  clone(): ValSet<K> {
     return new ValSet(this);
   }
 

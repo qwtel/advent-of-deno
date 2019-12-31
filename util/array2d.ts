@@ -1,7 +1,9 @@
 import { ValMap, ValSet } from "./values.ts";
-import { pipe, unzip2, minMax, find, product2, rangeX, filter, map } from "./iter.ts";
+import { pipe, unzip2, minMax, find, product2, rangeX, filter, map, filterValues, toArray, flatMap, pluck1, zipMap } from "./iter.ts";
 import { addTo, mkNe } from "./vec2.ts";
 import { last } from "./other.ts";
+import { Graph, WeightedEdge } from "./graph2.ts";
+import { is } from "./val-funcs.ts";
 
 export type Point = [number, number];
 export type Bounds = [[number, number], [number, number]];
@@ -97,6 +99,12 @@ export class Array2D<X> {
 
     neighbors4 = (p: Point) => pipe(neighbors4(p), filter(this.isInside));
     neighbors8 = (p: Point) => pipe(neighbors8(p), filter(this.isInside));
+
+    neighboringEntries4 = (p: Point) => pipe(neighbors4(p), filter(this.isInside), zipMap(_ => this.get(_)));
+    neighboringEntries8 = (p: Point) => pipe(neighbors8(p), filter(this.isInside), zipMap(_ => this.get(_)));
+
+    neighboringValues4 = (p: Point) => pipe(neighbors4(p), filter(this.isInside), map(_ => this.get(_)));
+    neighboringValues8 = (p: Point) => pipe(neighbors8(p), filter(this.isInside), map(_ => this.get(_)));
 
     bfs4(start: Point, goals: Set<X>, walkable: Set<X>) {
         return bfs(this, start, goals, walkable, this.neighbors4);
@@ -211,6 +219,22 @@ export class Array2D<X> {
         let s = ''
         for (const r of this.rows()) s += r.join('') + '\n';
         return s;
+    }
+
+    /**
+     * Compacts the 2D array into a `Graph` of shortest distances between `goals` along `walkable` fields.
+     * Each goal becomes a node in the graph, and each edge represents the shortest distance between them.
+     */
+    compactWorld(targets: Iterable<X>, walkable: Iterable<X>) {
+        const [targetSet, walkableSet] = [targets, walkable].map(_ => new ValSet(_));
+        return new Graph(pipe(
+            this.entries(),
+            filterValues(v => targetSet.has(v)),
+            flatMap(([startPos, from]) => pipe(
+                bfs(this, startPos, targetSet.clone().remove(from), walkableSet),
+                map(([to, dist]) => [from, to, dist] as [X, X, number]),
+            )),
+        ));
     }
 
     // [Deno.customInspect]() { return this.toString(); }
