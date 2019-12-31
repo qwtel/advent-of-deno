@@ -36,7 +36,7 @@ const dijkstra1 = (g, source, target) => dijkstra(g,source, target, (g, u) => pi
 ))
 
 const labeled = maze.map(fixLabels);
-const poi = pipe(labeled.values(), filter(v => !'. #'.includes(v)));
+const poi = new ValSet(pipe(labeled.values(), filter(v => !'. #'.includes(v))));
 const g = labeled.compactWorld(poi, '.')
 
 if (env.DEBUG) console.log('' + labeled);
@@ -45,60 +45,55 @@ if (env.DEBUG) console.log(g);
 console.log(dijkstra1(g, 'AA', 'ZZ')[1] - 1); // Removing the extra step from 'ZZ'
 
 // 2
+
+const U = 'u';
+const D = 'd';
+
 function fixLabels2(v1, [x, y], maze) {
   const label = fixLabels(v1, [x, y], maze);
-  if (label === v1) return v1;
-  if (label) {
-    const isOutside = x <= 2 || x >= maze.lengthX - 3 || y <= 2 || y >= maze.lengthY - 3;
-    const marker = isOutside ? ',%,u' : ',%,d'
-    return label + (['AA', 'ZZ'].includes(label) ? '' : marker);
-  }
-  return '';
+  if (!label || label === v1) return [label];
+  const isOutside = x <= 2 || x >= maze.lengthX - 3 || y <= 2 || y >= maze.lengthY - 3;
+  return [label, ...['AA', 'ZZ'].includes(label) ? [] : [isOutside ? U : D]];
 }
 
-const extractLevel = u => {
-  const [num] = u.match(/\d+/)  || [];
-  const [dir] = u.match(/[ud]/) || [];
-  switch (dir) { 
-    case 'd': return Number(num) + 1;
-    case 'u': return Number(num);
-    default: return 0;
-  }
+const flip = ([lbl, dir]) => {
+  if (dir === D) return [lbl, U];
+  if (dir === U) return [lbl, D];
+  return [lbl];
 }
 
-const flip = (v) => {
-  if (v.match(/d/)) return v.replace(/d/, 'u').replace(/\d+/, '%');
-  else if (v.match(/u/)) return v.replace(/u/, 'd').replace(/\d+/, '%');
-  return v;
+const getLevel = ([, dir, lvl]) => {
+  if (dir === D) return lvl + 1; // if we went through a down-portal the level is +1
+  if (dir === U) return lvl;
+  return 0;
 }
 
-const buzz = (v, level) => {
-  if (v.match(/d/)) return v.replace(/%/, level);
-  else if (v.match(/u/)) return v.replace(/%/, level - 1);
-  return v;
+const addLevel = ([lbl, dir], lvl) => {
+  if (dir === D) return [lbl, dir, lvl];
+  if (dir === U) return [lbl, dir, lvl - 1]; // the portal is an up-portal, the level is -1
+  return [lbl];
 }
 
 const dijkstra2 = (g, source, target) => dijkstra(g, source, target, (g, u) => {
-  const u_ = flip(u);
-  const level = extractLevel(u);
+  const [uFlipped, level] = [flip(u), getLevel(u)];
   return pipe(
-    g.outgoingEdges(u_),
-    filterSecond(v => level === 0
-      ? !v.match(/u/)
-      : !v.match(/(AA|ZZ)/)
+    g.outgoingEdges(uFlipped), // get all outgoing edges from the other side of portal `u`
+    filterSecond(([v, dir]) => level === 0
+      ? dir !== U // hide up-portals on level 0
+      : !['AA', 'ZZ'].includes(v) // hide AA and ZZ portals on all other levels
     ),
-    map(([u, v, w]) => [u, buzz(v, level), w]),
+    map(([u, v, w]) => [u, addLevel(v, level), w]),
     map(adjustWeight),
   );
 })
 
 const labeled2 = maze.map(fixLabels2);
-const poi2 = pipe(labeled2.values(), filter(v => !'. #'.includes(v)));
-const g2 = labeled2.compactWorld(poi2, '.');
+const poi2 = new ValSet(pipe(labeled2.values(), filter(([v]) => !'. #'.includes(v))));
+const g2 = labeled2.compactWorld(poi2, [['.']]);
 
 if (env.DEBUG) console.log('' + labeled2);
-if (env.DEBUG) console.log(g2);
+if (env.DEBUG) print(g2);
 
-print(dijkstra2(g2, 'AA', 'ZZ')[1] - 1); // Removing the extra step from 'ZZ'
+print(dijkstra2(g2, ['AA'], ['ZZ'])[1] - 1); // Removing the extra step from 'ZZ'
 
 })()
