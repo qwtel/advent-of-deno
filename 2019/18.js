@@ -13,12 +13,12 @@ const isLowerCase = x => x.toLowerCase() === x;
 
 const world2d = Array2D.fromString(await read())
 
-if (env.DEBUG) print(world2d.toString())
+if (env.DEBUG) console.log('' + world2d)
 
-// Basically BFS, but over our compacted graph.
+// Basically BFS, but over our compacted graph (shortest distances between points of interest).
 // Takes into account the key unlock-door logic.
-function* reachableKeys(world, currentKey, keysToCollect) {
-  const q = [[currentKey, 0]];
+function* reachableKeys(world, position, keysToCollect) {
+  const q = [[position, 0]];
   const seen = new Set();
 
   const isUnlocked = _ => !keysToCollect.has(_.toLowerCase());
@@ -37,18 +37,24 @@ function* reachableKeys(world, currentKey, keysToCollect) {
 const set = (a, i, v) => { a[i] = v; return a };
 
 const cache = new ValMap();
-const distanceToCollectKeys = (world, currentKeys, keysToCollect) => {
+
+// Given a set of current positions and a set of keys to collect, returns the minimum distance to collect them all.
+// `positions`, is an array of positions of each actor (1 for part 1, and 4 for part 2), 
+// where the position is a node in the compacted graph, i.e. either a starting position or the location of a key.
+const distanceToCollectKeys = (world, positions, keysToCollect) => {
   if (keysToCollect.size === 0) return 0;
 
-  const cacheKey = [currentKeys, keysToCollect];
+  const cacheKey = [positions, keysToCollect];
   if (cache.has(cacheKey)) return cache.get(cacheKey);
 
   const result = pipe(
-    currentKeys.entries(),
+    positions.entries(),
     map(([i, currentKey]) => pipe(
       reachableKeys(world, currentKey, keysToCollect),
       map(([key, d]) => {
-        const currentKeysNext = set([...currentKeys], i, key);
+        // For each key we recurse with the actor `i` in the position of reachable key `key`,
+        // and `key` removed from `keysToCollect`.
+        const currentKeysNext = set([...positions], i, key);
         const keysToCollectNext = keysToCollect.clone().remove(key);
         return d + distanceToCollectKeys(world, currentKeysNext, keysToCollectNext);
       }),

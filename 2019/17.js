@@ -42,7 +42,7 @@ const turnMap = new ValMap([
   [[E, N], L],
 ]);
 
-// A modified 4-grid ~~BFS~~ actually it's not BFS anymore algorithm that tries to maintain its direction
+// A modified 4-grid ~~BFS~~ actually it's not BFS anymore that tries to maintain its direction
 // and only changes it when going straight is not an option.
 function* modBfs(world, start, goals, obstacles) {
   const q = [[start]];
@@ -72,10 +72,9 @@ function* modBfs(world, start, goals, obstacles) {
 }
 
 const start = arr2d.findPoint(_ => _ === '^');
-// const end = arr2d.findPoint((x, p, a) => x === '#' && pipe(a.neighbors4(p), map(_ => a.get(_)), filter(_ => _ !== '.'), count()) === 1);
 const [, path] = pipe(modBfs(arr2d, start, '#', '.'), last());
 
-// Building a list of instructions on how to traverse the entire grid of the form `[leftOrRight, nrOfSteps]`.
+// Building a list of instructions on how to traverse the entire scaffolding of the form `[leftOrRight, nrOfSteps][]`.
 // We start with the path returned from the search algorithm and "differentiate" it to get a list of changes.
 // We then group them together (e.g. going west 4 times becomes `[W, 4]`).
 // Then we look at the groups pairwise (with offset 1) and use the `turnMap`
