@@ -103,14 +103,29 @@ export class Array2D<X> {
         return pipe(this.entries(), find(([p, x]) => f(x, p, this)), _ => _ && _[0]);
     }
 
-    neighbors4 = (p: Point) => pipe(neighbors4(p), filter(this.isInside));
-    neighbors8 = (p: Point) => pipe(neighbors8(p), filter(this.isInside));
+    neighbors4(p: Point) { 
+        return pipe(neighbors4(p), filter(this.isInside));
+    }
 
-    neighboringEntries4 = (p: Point) => pipe(neighbors4(p), filter(this.isInside), zipMap(_ => this.get(_)));
-    neighboringEntries8 = (p: Point) => pipe(neighbors8(p), filter(this.isInside), zipMap(_ => this.get(_)));
+    neighbors8(p: Point) { 
+        return pipe(neighbors8(p), filter(this.isInside));
+    }
 
-    neighboringValues4 = (p: Point) => pipe(neighbors4(p), filter(this.isInside), map(_ => this.get(_)));
-    neighboringValues8 = (p: Point) => pipe(neighbors8(p), filter(this.isInside), map(_ => this.get(_)));
+    neighboringEntries4(p: Point) { 
+        return pipe(neighbors4(p), filter(this.isInside), zipMap(_ => this.get(_)));
+    }
+
+    neighboringEntries8(p: Point) { 
+        return pipe(neighbors8(p), filter(this.isInside), zipMap(_ => this.get(_)));
+    }
+
+    neighboringValues4(p: Point) { 
+        return pipe(neighbors4(p), filter(this.isInside), map(_ => this.get(_)));
+    }
+
+    neighboringValues8(p: Point) { 
+        return pipe(neighbors8(p), filter(this.isInside), map(_ => this.get(_)));
+    }
 
     bfs4(start: Point, goals: Set<X>, walkable: Set<X>) {
         return bfs(this, start, goals, walkable, this.neighbors4);
