@@ -9,11 +9,7 @@ import { pad } from '../util/other.ts';
 
 const env = Deno.env();
 
-const input = (await read(Deno.stdin))
-  .split('\n')
-  .map(l => l.split(''));
-
-const arr2d = Array2D.of(input);
+const arr2d = Array2D.fromString(await read(Deno.stdin));
 
 const asteroids = pipe(
   arr2d.entries(),

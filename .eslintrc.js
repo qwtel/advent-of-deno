@@ -8,6 +8,7 @@ module.exports = {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly",
         "Deno": "readonly",
+        "print": "readonly",
     },
     "parserOptions": {
         "ecmaVersion": 2018,

@@ -11,6 +11,8 @@ type PointMap<X> = ValMap<Point, X>;
 export const neighbors4 = (point: Point = [0, 0]) => pipe([[0, -1], [0, 1], [-1, 0], [1, 0]], map(addTo(point))) as IterableIterator<Point>
 export const neighbors8 = (point: Point = [0, 0]) => pipe(product2(rangeX(-1, 1), rangeX(-1, 1)), filter(mkNe([0, 0])), map(addTo(point))) as IterableIterator<Point>;
 
+const BARE = Symbol('bare') as any;
+
 export class Array2D<X> {
     private _bounds: Bounds;
     private _array: X[][];
@@ -18,7 +20,7 @@ export class Array2D<X> {
     static of<X>(arr2D: X[][], bounds: Bounds = [[0, 0], [arr2D[0].length, arr2D.length]]): Array2D<X> {
         const a = new Array2D<X>(bounds);
         for (const p of a.coords()) {
-            const [ix, iy] = a._coordToIndex(p);
+            const [ix, iy] = a._pointToIndex(p);
             a.set(p, arr2D[iy][ix]);
         }
         return a;
@@ -45,23 +47,24 @@ export class Array2D<X> {
     }
 
     constructor(bounds: Bounds = [[0, 0], [1, 1]], fill: any = 0) {
+        if (bounds as any === BARE) return;
         const [[minX, minY], [maxX, maxY]] = this._bounds = bounds;
         const [diffX, diffY] = [maxX - minX, maxY - minY];
         this._array = new Array(diffY).fill(fill).map(() => new Array(diffX).fill(fill));
     }
 
-    private _coordToIndex([x, y]: Point): [number, number] {
+    private _pointToIndex([x, y]: Point): [number, number] {
         const [[minX, minY]] = this.bounds;
         return [x - minX, y - minY];
     }
 
-    private _indexToCoord(i: number, j: number): Point {
+    private _indexToPoint(ix: number, iy: number): Point {
         const [[minX, minY]] = this.bounds;
-        return [i + minX, j + minY];
+        return [ix + minX, iy + minY];
     }
 
     copy(): Array2D<X> {
-        const a = new Array2D<X>();
+        const a = new Array2D<X>(BARE);
         const { array, bounds } = this; // implicit clone
         a._array = array;
         a._bounds = bounds;
@@ -81,13 +84,13 @@ export class Array2D<X> {
     forEach(f: (x: X, p?: Point, self?: Array2D<X>) => {}): void {
         this._array.forEach((row, iy) =>
             row.forEach((x, ix) =>
-                f(x, this._indexToCoord(ix, iy), this)));
+                f(x, this._indexToPoint(ix, iy), this)));
     }
 
     map<Y>(f: (x: X, p?: Point, self?: Array2D<X>) => Y): Array2D<Y> {
-        const a = new Array2D<Y>();
+        const a = new Array2D<Y>(BARE);
         a._array = this._array.map((row, iy) =>
-            row.map((c, ix) => f(c, this._indexToCoord(ix, iy), this)));
+            row.map((c, ix) => f(c, this._indexToPoint(ix, iy), this)));
         a._bounds = this.bounds;
         return a;
     }
@@ -118,13 +121,13 @@ export class Array2D<X> {
     }
 
     set(point: Point, value: X): Array2D<X> {
-        const [ix, iy] = this._coordToIndex(point);
+        const [ix, iy] = this._pointToIndex(point);
         this._array[iy][ix] = value;
         return this;
     }
 
     get(point: Point): X {
-        const [ix, iy] = this._coordToIndex(point);
+        const [ix, iy] = this._pointToIndex(point);
         if (this.isOutside(point)) return undefined;
         return this._array[iy][ix];
     }
@@ -145,7 +148,7 @@ export class Array2D<X> {
     get bounds(): Bounds { return this._bounds.map(([x, y]) => [x, y]) as Bounds; }
 
     transpose(): Array2D<X> {
-        const a = new Array2D<X>();
+        const a = new Array2D<X>(BARE);
         a._array = this._array[0].map((_, i) => this._array.map(r => r[i]));
         a._bounds = this.bounds;
         return a;
@@ -183,11 +186,15 @@ export class Array2D<X> {
     }
 
     *values(): IterableIterator<X> {
-        for (const p of this.coords()) yield this.get(p);
+        for (const row of this._array)
+            for (const cell of row) 
+                yield cell;
     }
 
     *entries(): IterableIterator<[Point, X]> {
-        for (const p of this.coords()) yield [p, this.get(p)];
+        for (const [iy, row] of this._array.entries())
+            for (const [ix, cell] of row.entries())
+                yield [this._indexToPoint(ix, iy), cell];
     }
 
     // delivers all the edge coordinates in clockwise fashion
@@ -228,7 +235,7 @@ export class Array2D<X> {
      * Compacts the 2D array into a `Graph` of shortest distances between `goals` along `walkable` fields.
      * Each goal becomes a node in the graph, and each edge represents the shortest distance between them.
      */
-    compactWorld(targets: Iterable<X>, walkable: Iterable<X>) {
+    compactWorld(targets: Iterable<X>, walkable: Iterable<X>): Graph<X> {
         const [targetSet, walkableSet] = [targets, walkable].map(_ => new ValSet(_));
         return new Graph(pipe(
             this.entries(),

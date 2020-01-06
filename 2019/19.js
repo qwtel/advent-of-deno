@@ -46,8 +46,8 @@ function approx2(precision) {
   // console.log('' + world)
 
   const lastRow = world.array[0];
-  const x1 = pipe(lastRow, findIndex(_ => _ === '#'))
-  const x2 = pipe(lastRow, findLastIndex(_ => _ === '#'))
+  const x1 = lastRow.indexOf('#');
+  const x2 = lastRow.lastIndexOf('#');
   if (env.DEBUG) console.log('x', x1, x2)
 
   // integer math is hard..

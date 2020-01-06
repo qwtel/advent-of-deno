@@ -12,13 +12,13 @@ const env = Deno.env()
 
 const maze = Array2D.fromString(await read());
 
-const aToZ = new Set(pipe(rangeX('A'.charCodeAt(0), 'Z'.charCodeAt(0)), map(String.fromCharCode)));
+const A_Z = new Set(pipe(rangeX('A'.charCodeAt(0), 'Z'.charCodeAt(0)), map(String.fromCharCode)));
 
 const fixLabels = (v, p, maze) => {
-  if (!aToZ.has(v)) return v;
+  if (!A_Z.has(v)) return v;
   if (pipe(maze.neighboringValues4(p), some(_ => _ === '.'))) {
-    const [p_, v_] = pipe(maze.neighboringEntries4(p), find(([, v]) => aToZ.has(v)));
-    const label = len(p_) > len(p) ? [v, v_] : [v_, v];
+    const [p2, v2] = pipe(maze.neighboringEntries4(p), find(([, v]) => A_Z.has(v)));
+    const label = len(p2) > len(p) ? [v, v2] : [v2, v];
     return label.join('');
   }
   return '';
@@ -28,13 +28,13 @@ const fixLabels = (v, p, maze) => {
 // Adding 1 because taking a portal takes 1 extra step.
 const adjustWeight = ([u, v, w]) => [u, v, w - 2 + 1];
 
-const dijkstra1 = (g, source, target) => dijkstra(g,source, target, (g, u) => pipe(
+const dijkstra1 = (g, source, target) => dijkstra(g, source, target, (g, u) => pipe(
   g.outgoingEdges(u),
   map(adjustWeight),
 ))
 
 const labeled = maze.map(fixLabels);
-const poi = new ValSet(pipe(labeled.values(), filter(v => !'. #'.includes(v))));
+const poi = new ValSet(pipe(labeled, filter(v => !'. #'.includes(v))));
 const g = labeled.compactWorld(poi, '.')
 
 if (env.DEBUG) console.log('' + labeled);
@@ -86,12 +86,12 @@ const dijkstra2 = (g, source, target) => dijkstra(g, source, target, (g, u) => {
 })
 
 const labeled2 = maze.map(fixLabels2);
-const poi2 = new ValSet(pipe(labeled2.values(), filter(([v]) => !'. #'.includes(v))));
+const poi2 = new ValSet(pipe(labeled2, filter(([v]) => !'. #'.includes(v))));
 const g2 = labeled2.compactWorld(poi2, [['.']]);
 
 if (env.DEBUG) console.log('' + labeled2);
 if (env.DEBUG) print(g2);
 
-print(dijkstra2(g2, ['AA'], ['ZZ'])[1] - 1); // Removing the extra step from 'ZZ'
+console.log(dijkstra2(g2, ['AA'], ['ZZ'])[1] - 1); // Removing the extra step from 'ZZ'
 
 })()
