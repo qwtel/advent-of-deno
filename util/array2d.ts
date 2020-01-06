@@ -246,6 +246,10 @@ export class Array2D<X> {
         return s;
     }
 
+    toPointMap(): PointMap<X> {
+        return new ValMap(this.entries())
+    }
+
     /**
      * Compacts the 2D array into a `Graph` of shortest distances between `goals` along `walkable` fields.
      * Each goal becomes a node in the graph, and each edge represents the shortest distance between them.
