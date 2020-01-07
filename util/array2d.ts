@@ -1,12 +1,12 @@
 import { ValMap, ValSet } from "./values.ts";
-import { pipe, unzip2, minMax, find, product2, rangeX, filter, map, filterValues, flatMap, zipMap } from "./iter.ts";
+import { pipe, unzip2, minMax, find, product2, rangeX, filter, map, filterValues, flatMap, zipMap, pluckKeys, forEach } from "./iter.ts";
 import { addTo, mkNe } from "./vec2.ts";
 import { last } from "./other.ts";
 import { Graph } from "./graph2.ts";
 
 export type Point = [number, number];
 export type Bounds = [[number, number], [number, number]];
-type PointMap<X> = ValMap<Point, X>;
+export type PointMap<X> = ValMap<Point, X>;
 
 export const neighbors4 = (point: Point = [0, 0]) => pipe([[0, -1], [0, 1], [-1, 0], [1, 0]], map(addTo(point))) as IterableIterator<Point>
 export const neighbors8 = (point: Point = [0, 0]) => pipe(product2(rangeX(-1, 1), rangeX(-1, 1)), filter(mkNe([0, 0])), map(addTo(point))) as IterableIterator<Point>;
@@ -34,15 +34,16 @@ export class Array2D<X> {
         return new Array2D<X>([[minX, minY], [maxX + 1, maxY + 1]], fill);
     }
 
-    // TODO: types for point map
-    static fromPointMap<X>(pointMap: PointMap<X>, fill: X) {
+    static fromPointMap<X>(pointMap: Iterable<[Point, X]>, fill: X) {
+        pointMap = [...pointMap];
         const a = pipe(
-            pointMap.keys() as IterableIterator<Point>,
+            pointMap,
+            pluckKeys(),
             unzip2(),
             ([xs, ys]) => [minMax()(xs), minMax()(ys)],
             _ => Array2D.fromMinMax(_ as Bounds, fill),
         );
-        pointMap.forEach((value: X, point: Point) => a.set(point, value))
+        pipe(pointMap, forEach(([point, value]: [Point, X]) => a.set(point, value)));
         return a;
     }
 
