@@ -3,7 +3,7 @@
 import { read } from '../util/aoc.ts'
 import { Array2D, neighbors4 } from '../util/array2d.ts'
 import { eq, ne } from '../util/vec2.ts'
-import { pipe,  map, find, sum, zipMap, range, mapKeys, toMap, sort, first, flatMap, constantly, zip3, distinct, groupBy, nth, toSet, pluckValues, filterKeys } from '../util/iter.ts'
+import { pipe,  map, find, sum, zipMap, range, mapKeys, toMap, sort, first, flatMap, constantly, zip3, distinct, groupBy, nth, toSet, pluckValues, filterKeys, frequencies, filterValues, count, filterMap } from '../util/iter.ts'
 import { ValSet, ValMap } from '../util/values.ts'
 (async () => {
 
@@ -16,15 +16,13 @@ const input = Array2D.fromString(await read(Deno.stdin));
 
 if (env.DEBUG) console.log('' + input);
 
-const liveOrDie = (bug, nr) => bug === 1
-  ? nr === 1 ? 1 : 0
-  : nr === 1 || nr === 2 ? 1 : 0;
-
 function* solve(eris) {
   for (;;) {
-    eris = eris.map((v, p) => {
+    eris = eris.map((bug, p) => {
       const nr = pipe(eris.neighboringValues4(p), sum());
-      return liveOrDie(v, nr);
+      return bug === 1
+        ? nr === 1 ? 1 : 0
+        : nr === 1 || nr === 2 ? 1 : 0;
     })
     if (env.DEBUG) console.log('' + eris.map(_ => _ ? '#' : '.'));
     yield eris;
@@ -75,45 +73,43 @@ function neighbors4Inf([lvl, x, y]) {
   }))
 }
 
-// Not very fast, but small in terms of code size.
-// We get the neighbors of every point and put them into a set to get rid of duplicates
-// (This effectively extends the border by 1 unit).
-// Then we just perform our lifecycle function on every point and repeat.
 function* solve2(eris) {
   for (let curr = eris, i = 0;; i++) {
     curr = pipe(
-      curr.keys(),
+      curr,
       flatMap(neighbors4Inf),
-      toSet(ValSet), // unique
-      map(point => {
-        const value = curr.get(point) || 0;
-        const nr = pipe(neighbors4Inf(point), map(p => curr.get(p) || 0), sum());
-        return [point, liveOrDie(value, nr)];
-      }),
-      toMap(ValMap),
+      _ => frequencies(_, ValMap),
+      filterMap(([p, nr]) => curr.has(p)
+        ? nr === 1 ? p : null
+        : nr === 1 || nr === 2 ? p : null),
+      toSet(ValSet),
     );
     if (env.DEBUG) console.log(i);
     yield curr;
   }
 }
 
-// Adding level 0 to the initial scan.
-const eris2 = new ValMap(pipe(eris.entries(), filterKeys(p => ne(p, [2, 2])), mapKeys(p => [0, ...p])));
+const eris2 = new ValSet(pipe(
+  eris.entries(),
+  filterValues(v => v === 1),
+  map(([[x, y]]) => [0, x, y]),
+));
 
+if (env.PROFILE) console.time('2')
 pipe(
-  solve2(eris2),
+  solve2(eris2.remove([0, 2, 2])),
   nth(200),
-  pluckValues(),
-  sum(),
+  count(),
   console.log,
 );
+if (env.PROFILE) console.timeEnd('2')
 
 
 function debug(eris) {
-  const levels = pipe(eris, map(([[level]]) => level), distinct(), sort((a, b) => a - b));
-  const fieldByLevel = pipe(eris, groupBy(([[level]]) => level));
+  const levels = pipe(eris, map(([level]) => level), distinct(), sort((a, b) => a - b));
+  const fieldByLevel = pipe(eris, groupBy(([level]) => level));
   for (const level of levels) {
-    const arr2d = pipe(fieldByLevel.get(level), mapKeys(([, x, y]) => [x, y]), Array2D.fromPointMap);
+    const arr2d = pipe(fieldByLevel.get(level), map(([, x, y]) => [[x, y], 1]), _ => Array2D.fromPointMap(_, 0));
     console.log(`Depth ${level}:`);
     console.log('' + arr2d.map((v, p) => eq(p, [2, 2]) ? '?' : v ? '#' : '.'));
   }
