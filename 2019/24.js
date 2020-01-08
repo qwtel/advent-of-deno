@@ -2,8 +2,8 @@
 
 import { read } from '../util/aoc.ts'
 import { Array2D, neighbors4 } from '../util/array2d.ts'
-import { eq } from '../util/vec2.ts'
-import { pipe,  map, find, sum, zipMap, range, mapKeys, toMap, sort, first, flatMap, constantly, zip3, distinct, groupBy, nth, toSet, pluckValues } from '../util/iter.ts'
+import { eq, ne } from '../util/vec2.ts'
+import { pipe,  map, find, sum, zipMap, range, mapKeys, toMap, sort, first, flatMap, constantly, zip3, distinct, groupBy, nth, toSet, pluckValues, filterKeys } from '../util/iter.ts'
 import { ValSet, ValMap } from '../util/values.ts'
 (async () => {
 
@@ -55,6 +55,8 @@ pipe(
 );
 
 // 2
+// A modified 4-neighbor function based on the description.
+// Points are now represented as triples of `[level, x, y]`.
 function neighbors4Inf([lvl, x, y]) {
   return pipe(neighbors4([x, y]), flatMap(([x2, y2]) => {
     if (x2 === 2 && y2 === 2) {
@@ -73,25 +75,30 @@ function neighbors4Inf([lvl, x, y]) {
   }))
 }
 
+// Not very fast, but small in terms of code size.
+// We get the neighbors of every point and put them into a set to get rid of duplicates
+// (This effectively extends the border by 1 unit).
+// Then we just perform our lifecycle function on every point and repeat.
 function* solve2(eris) {
-  for (let i = 0;; i++) {
-    eris = pipe(
-      eris.keys(),
+  for (let curr = eris, i = 0;; i++) {
+    curr = pipe(
+      curr.keys(),
       flatMap(neighbors4Inf),
-      toSet(ValSet),
+      toSet(ValSet), // unique
       map(point => {
-        const value = eris.get(point) || 0;
-        const nr = pipe(neighbors4Inf(point), map(p => eris.get(p) || 0), sum());
+        const value = curr.get(point) || 0;
+        const nr = pipe(neighbors4Inf(point), map(p => curr.get(p) || 0), sum());
         return [point, liveOrDie(value, nr)];
       }),
       toMap(ValMap),
     );
     if (env.DEBUG) console.log(i);
-    yield eris;
+    yield curr;
   }
 }
 
-const eris2 = new ValMap(pipe(eris.entries(), mapKeys(p => [0, ...p])));
+// Adding level 0 to the initial scan.
+const eris2 = new ValMap(pipe(eris.entries(), filterKeys(p => ne(p, [2, 2])), mapKeys(p => [0, ...p])));
 
 pipe(
   solve2(eris2),
