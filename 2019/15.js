@@ -4,7 +4,7 @@ import { read } from '../util/aoc.ts';
 import { Array2D, neighbors4, bfs } from '../util/array2d.ts';
 import { add, eq, sub, mkNe as notEq } from '../util/vec2d.ts';
 import { ValMap } from '../util/values.ts';
-import { pipe, filter, concat2, first, last } from '../util/iter.ts';
+import { pipe, filter, concat2, first, last, reverse, map } from '../util/iter.ts';
 import { notIn } from '../util/other.ts'
 import { run } from './intcode.js';
 (async () => {
@@ -21,8 +21,8 @@ function* pop(path) {
 }
 
 const [N, S, W, E] = [1, 2, 3, 4]
-const dirMap = { [N]: [0, -1], [S]: [0, 1], [W]: [-1, 0], [E]: [1, 0] }
-const dirMapRev = new ValMap(Object.entries(dirMap).map(([k, v]) => [v, k]))
+const dirMap = new Map([[N, [0, -1]], [S, [0, 1]], [W, [-1, 0]], [E, [1, 0]]])
+const dirMapRev = new ValMap(pipe(dirMap, map(reverse())));
 
 let dir = 1, curr = [0, 0], next, goal;
 const channel = [dir];
@@ -35,17 +35,18 @@ function debug(curr) {
 }
 
 for (const response of droid) {
+  const pos = add(curr, dirMap.get(dir));
   switch (response) {
     case 2: 
-      goal = add(curr, dirMap[dir]);
+      goal = pos;
       // no break
     case 1:
-      curr = add(curr, dirMap[dir]);
-      world.set(curr, '.');
-      path.push(curr);
+      world.set(pos, '.');
+      path.push(pos);
+      curr = pos;
       break;
     case 0:
-      world.set(add(curr, dirMap[dir]), '#');
+      world.set(pos, '#');
       break;
   }
 

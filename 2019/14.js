@@ -27,20 +27,6 @@ for (const [ingredients, [[n, result]]] of reactions) {
   }
 }
 
-// const swap = ([a, b]) => [b, a];
-// const minIncrements = new ValMap([
-//   ['ORE', 1],
-//   ...pipe(reactions, pluck1(), flatten(), map(swap)),
-// ])
-
-// const edges = [...pipe(
-//   reactions,
-//   flatMap(([ingredients, [[n, result]]]) => pipe(
-//     ingredients, 
-//     map(([m, ingredient]) => [result, ingredient, m / n]),
-//   )),
-// )];
-
 const g = new Graph(edges);
 
 function solve(nFuel) {
@@ -77,5 +63,20 @@ const TARGET = 1000000000000;
 let upper = 0;
 for (let x = 1; upper <= TARGET; x *= 2) upper = solve(x);
 console.log(search(solve, TARGET, [1, upper]));
+
+// const swap = ([a, b]) => [b, a];
+// const minIncrements = new ValMap([
+//   ['ORE', 1],
+//   ...pipe(reactions, pluck1(), flatten(), map(swap)),
+// ])
+
+// const edges = [...pipe(
+//   reactions,
+//   flatMap(([ingredients, [[n, result]]]) => pipe(
+//     ingredients, 
+//     map(([m, ingredient]) => [result, ingredient, m / n]),
+//   )),
+// )];
+
 
 })();

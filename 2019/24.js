@@ -2,9 +2,9 @@
 
 import { read } from '../util/aoc.ts'
 import { Array2D, neighbors4 } from '../util/array2d.ts'
-import { eq, ne } from '../util/vec2.ts'
-import { pipe,  map, find, sum, zipMap, range, mapKeys, toMap, sort, first, flatMap, constantly, zip3, distinct, groupBy, nth, toSet, pluckValues, filterKeys, frequencies, filterValues, count, filterMap } from '../util/iter.ts'
-import { ValSet, ValMap } from '../util/values.ts'
+import { eq } from '../util/vec2.ts'
+import { pipe,  map, find, sum, zipMap, range, sort, first, flatMap, constantly, zip3, distinct, groupBy, nth, toSet, frequencies, filterValues, count, filterMap } from '../util/iter.ts'
+import { ValSet } from '../util/values.ts'
 (async () => {
 
 // const call = f => (...args) => f(args);
@@ -84,7 +84,7 @@ function* solve2(eris) {
         : nr === 1 || nr === 2 ? p : null),
       toSet(ValSet),
     );
-    if (env.DEBUG) console.log(i);
+    if (env.DEBUG && i % 20 === 0) console.log(i);
     yield curr;
   }
 }

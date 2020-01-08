@@ -21,7 +21,7 @@ pipe(
 
 pipe(
   input,
-  map((x) => pipe(
+  map(x => pipe(
     constantly(),
     scan(calcFuel, x),
     takeWhile(x => x > 0),

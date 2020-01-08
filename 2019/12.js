@@ -19,19 +19,19 @@ const input = (await read())
 
 const [xs, ys, zs] = pipe(input, unzip3(), map(toArray()));
 
-function solve(positionsOnAxis) {
-  const initialPosVelTuples = [...zip2(positionsOnAxis, constantly(0))];
-  return pipe(
-    constantly(), 
-    scan(posVelTuples => posVelTuples.map(([pos, vel]) => {
+function* solve(positionsOnAxis) {
+  let posVelTuples = [...zip2(positionsOnAxis, constantly(0))];
+  for (;;) {
+    posVelTuples = posVelTuples.map(([pos, vel]) => {
       const vel2 = pipe(
         posVelTuples,
         map(([p]) => Math.sign(p - pos)),
         sum(vel),
       );
       return [pos + vel2, vel2];
-    }), initialPosVelTuples),
-  );
+    });
+    yield posVelTuples;
+  }
 }
 
 // 1

@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, toArray, toMap, last, take, inspect, flat, some } from '../util/iter.ts';
+import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, toArray, toMap, last, take, inspect, flat, some, filterValues, pluckKeys } from '../util/iter.ts';
 import { Array2D } from '../util/array2d.ts';
 import { eq, ne, sub } from '../util/vec2d.ts';
 import { pad } from '../util/other.ts';
@@ -13,23 +13,22 @@ const arr2d = Array2D.fromString(await read(Deno.stdin));
 
 const asteroids = pipe(
   arr2d.entries(),
-  filter(([, v]) => v === '#'),
-  map(([p]) => p),
+  filterValues(v => v === '#'),
+  pluckKeys(),
   toArray(),
 );
-
-// 1
 
 const calcAngle = (p1, p2) => {
   const [dx, dy] = sub(p2, p1);
   return Math.atan2(dy, dx);
 }
 
+// 1
 const [laserPos, nrOfTargets] = pipe(
   asteroids,
   zipMap((currPos) => pipe(
-    asteroids.filter(a => ne(currPos, a)),
-    map(a => calcAngle(currPos, a)),
+    asteroids.filter(p => ne(currPos, p)),
+    map(p => calcAngle(currPos, p)),
     unique(),
     count(),
   )),
@@ -38,26 +37,15 @@ const [laserPos, nrOfTargets] = pipe(
 console.log(nrOfTargets);
 
 // 2
-const print = (removed) => console.log(
-  arr2d.map((_, p) => eq(p, laserPos)
-    ? 'X'
-    : eq(p, removed)
-      ? '@' 
-      : pipe(nearestByAngle.values(), flat(), some(a => eq(p, a)))
-        ? '#'
-        : '.').toString()
-);
-
-// const [laserPos, nrOfTargets] = [[8, 3], -1];
 if (env.DEBUG) console.log(`Putting laser at [${laserPos.map(pad(2))}]`);
 
 const dist = ([ax, ay], [bx, by]) => Math.abs(ax - bx) + Math.abs(ay - by);
 const distToLaser = (p) => dist(laserPos, p);
 
 const nearestByAngle = pipe(
-  asteroids.filter(_ => ne(laserPos, _)),
-  groupBy(_ => calcAngle(laserPos, _)),
-  mapValues(_ => _.sort((a, b) => distToLaser(a) - distToLaser(b))),
+  asteroids.filter(p => ne(laserPos, p)),
+  groupBy(p => calcAngle(laserPos, p)),
+  mapValues(ps => ps.sort((a, b) => distToLaser(a) - distToLaser(b))),
   toMap(),
 );
 
@@ -65,15 +53,27 @@ const anglesClockwise = [...nearestByAngle.keys()].sort((a, b) => a - b);
 
 pipe(
   cycle(anglesClockwise),
-  skipWhile(_ => _ < -Math.PI/2),
-  map(_ => nearestByAngle.get(_).shift()),
+  skipWhile(a => a < -Math.PI/2),
+  map(a => nearestByAngle.get(a).shift()),
   filter(vaporized => vaporized != null),
-  env.DEBUG && inspect(print),
+  env.DEBUG ? inspect(debug) : _ => _,
   take(Math.min(200, asteroids.length - 2)),
   last(),
   ([x, y]) => x * 100 + y,
   console.log,
 );
+
+
+function debug(removed) { 
+  console.log(arr2d.map((_, p) => eq(p, laserPos)
+    ? 'X'
+    : eq(p, removed)
+      ? '@' 
+      : pipe(nearestByAngle.values(), flat(), some(a => eq(p, a)))
+        ? '#'
+        : '.').toString());
+};
+
 
 // Old solution
 // {
@@ -102,5 +102,6 @@ pipe(
 //     }
 //   }
 // }
+
 
 })();
