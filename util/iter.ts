@@ -1,6 +1,7 @@
 // My little iterator library ("lilit")
 
-import { tee, teeN, iterator, Constructor } from './iter-funcs.ts';
+import { tee, teeN, iterator } from './iter-funcs.ts';
+import { ValMap } from './val-map.ts';
 
 
 
@@ -345,12 +346,13 @@ export function unzip(n: number = 2) {
   };
 }
 
-export function groupBy<X, K>(f: (x: X) => K, mapImpl: Constructor<Map<K, X[]>> = Map) {
+export function groupBy<X, K>(f: (x: X) => K) {
   return function(xs: Iterable<X>): Map<K, X[]> {
-    const res = new mapImpl();
+    const res = new ValMap<K, X[]>();
     for (const x of xs) {
       const key = f(x);
-      res.set(key, [...(res.get(key) || []), x]);
+      const group = res.get(key) || [];
+      res.set(key, [...group, x]);
     }
     return res;
   };
@@ -933,8 +935,8 @@ export function* interleave(...xss: Iterable<{}>[]): IterableIterator<{}> {
   }
 }
 
-export function frequencies<X>(iterable: Iterable<X>, mapImpl: Constructor<Map<X, number>> = Map) {
-    const fs = new mapImpl();
+export function frequencies<X>(iterable: Iterable<X>) {
+    const fs = new ValMap<X, number>();
     for (const item of iterable) {
         fs.set(item, 1 + (fs.get(item) || 0));
     }

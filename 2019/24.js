@@ -78,7 +78,7 @@ function* solve2(eris) {
     curr = pipe(
       curr,
       flatMap(neighbors4Inf),
-      _ => frequencies(_, ValMap),
+      frequencies,
       filterMap(([p, nr]) => curr.has(p)
         ? nr === 1 ? p : null
         : nr === 1 || nr === 2 ? p : null),
