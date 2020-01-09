@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
 import { read } from '../util/aoc.ts';;
-import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, toArray, toMap, last, take, inspect, flat, some, filterValues, pluckKeys } from '../util/iter.ts';
+import { pipe, map, maxByKey, filter, unique, count, groupBy, cycle, zipMap, mapValues, skipWhile, toArray, toMap, inspect, flat, some, filterValues, pluckKeys, nth } from '../util/iter.ts';
 import { Array2D } from '../util/array2d.ts';
 import { eq, ne, sub } from '../util/vec2d.ts';
 import { pad } from '../util/other.ts';
@@ -57,8 +57,7 @@ pipe(
   map(a => nearestByAngle.get(a).shift()),
   filter(vaporized => vaporized != null),
   env.DEBUG ? inspect(debug) : _ => _,
-  take(Math.min(200, asteroids.length - 2)),
-  last(),
+  nth(Math.min(200, asteroids.length - 2)),
   ([x, y]) => x * 100 + y,
   console.log,
 );

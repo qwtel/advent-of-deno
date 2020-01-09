@@ -1,13 +1,12 @@
 #!/usr/bin/env -S deno --allow-env --importmap=../import_map.json
 
-import immutable, { fromJS } from 'immutable';
 import { read } from '../util/aoc.ts';
 import { lcm } from '../util/other.ts';
-import { pipe, map, toArray, constantly, sum, take, last, pluck0, unzip3, scan, zip2, zip3, unzip2, findIndex } from '../util/iter.ts';
+import { pipe, map, toArray, constantly, sum, nth, pluck0, unzip3, scan, zip2, zip3, unzip2, findIndex } from '../util/iter.ts';
+import { is } from '../util/values.ts';
 (async () => {
 
 const abs = (vec) => pipe(vec, map(Math.abs), sum());
-const is = (a, b) => immutable.is(fromJS(a), fromJS(b));
 
 const env = Deno.env();
 
@@ -39,8 +38,7 @@ pipe(
   [xs, ys, zs],
   map(axis => pipe(
     solve(axis), 
-    take(1000),
-    last(), 
+    nth(1000),
     unzip2(),
   )),
   unzip2(),

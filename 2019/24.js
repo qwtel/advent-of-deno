@@ -63,22 +63,22 @@ function neighbors4Inf([lvl, x, y]) {
       if (x === 1 && y === 2) return [...zip3(constantly(lvl + 1), constantly(0), range(0, 5))];
       if (x === 3 && y === 2) return [...zip3(constantly(lvl + 1), constantly(4), range(0, 5))];
     }
-    if (x2 < 0 || x2 >= 5 || y2 < 0 || y2 >= 5) {
-      if (x2 < 0) return [[lvl - 1, 1, 2]];
-      if (x2 >= 5) return [[lvl - 1, 3, 2]];
-      if (y2 < 0) return [[lvl - 1, 2, 1]];
-      if (y2 >= 5) return [[lvl - 1, 2, 3]];
-    }
+    if (x2 < 0) return [[lvl - 1, 1, 2]];
+    if (x2 >= 5) return [[lvl - 1, 3, 2]];
+    if (y2 < 0) return [[lvl - 1, 2, 1]];
+    if (y2 >= 5) return [[lvl - 1, 2, 3]];
     return [[lvl, x2, y2]];
   }))
 }
 
+// The world is represented as a set of triples of `[level, x, y]`.
+// If a triple is part of the set, it means the bug on that coordinate is alive.
 function* solve2(eris) {
-  for (let curr = eris, i = 0;; i++) {
+  for (let curr = eris, i = 1;; i++) {
     curr = pipe(
       curr,
-      flatMap(neighbors4Inf),
-      frequencies,
+      flatMap(neighbors4Inf), // map the current set to a collection of all neighbors
+      frequencies, // effectively counts the number of neighbors each coordinate has
       filterMap(([p, nr]) => curr.has(p)
         ? nr === 1 ? p : null
         : nr === 1 || nr === 2 ? p : null),

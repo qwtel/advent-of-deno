@@ -16,15 +16,14 @@ const input = (await read())
   .map(Number);
 
 const dirs = wrap(['^', '>', 'v', '<']);
-const move = (curr, dir) => {
+const dirMap = dir => {
   switch (dir) {
-    case '^': return add(curr, [0, 1]);
-    case '>': return add(curr, [1, 0]);
-    case 'v': return add(curr, [0, -1]);
-    case '<': return add(curr, [-1, 0]);
-    default: throw Error(dir);
+    case '^': return [0, 1];
+    case '>': return [1, 0];
+    case 'v': return [0, -1];
+    case '<': return [-1, 0];
   }
-}
+};
 
 function solve(init = []) {
   const painted = new ValMap(init);
@@ -41,7 +40,7 @@ function solve(init = []) {
 
     painted.set(curr, v1 === 1 ? '#' : '.');
     dir += v2 === 0 ? -1 : v2 === 1 ? 1 : 0;
-    curr = move(curr, dirs[dir]);
+    curr = add(curr, dirMap(dirs[dir]));
   }
 
   return painted;

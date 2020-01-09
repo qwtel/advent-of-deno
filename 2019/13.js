@@ -55,7 +55,7 @@ for (const [x, y, c] of pipe(play(), grouped(3))) {
 
   if (env.DEBUG) {
     console.log(score);
-    console.log(frameBuffer.map((c, [x]) => { switch(c) {
+    console.log(frameBuffer.map(c => { switch(c) {
       case 0: return ' ';
       case 1: return '#';
       case 2: return 'x';

@@ -2,6 +2,7 @@
 
 import { tee, teeN, iterator } from './iter-funcs.ts';
 import { ValMap } from './val-map.ts';
+import { ValSet } from './val-set.ts';
 
 
 
@@ -670,8 +671,16 @@ export function toSet<X>(SetLike: typeof Set = Set) {
   return (xs: Iterable<X>) => new SetLike(xs);
 }
 
+export function toValSet<X>() {
+  return (xs: Iterable<X>) => new ValSet(xs);
+}
+
 export function toMap<K, V>(MapLike: typeof Map = Map) {
   return (xs: Iterable<[K, V]>) => new MapLike(xs);
+}
+
+export function toValMap<K, V>() {
+  return (xs: Iterable<[K, V]>) => new ValMap(xs);
 }
 
 export function toString() {
